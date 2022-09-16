@@ -25,6 +25,9 @@
 	path - navigation
 */
 
+if (process.env.NODE_ENV !== 'production'){
+    require('dotenv').config()
+}
 
 const express = require('express');
 const path = require('path');
@@ -45,13 +48,13 @@ const app = express();
 
 app.use(session({
 //Removed private information to test gitignore and upload to GitHub.
-key: db.key,
-secret: db.secret,
+key: process.env.SESSION_KEY,
+secret: process.env.SESSION_SECRET,
 store: new MySQLStore({
-    host     : db.host,
-    user     : db.user,
-    password : db.password,
-    database : db.database
+    host     : process.env.SESSION_HOST,
+    user     : process.env.SESSION_USER,
+    password : process.env.SESSION_PASSWORD,
+    database : process.env.SESSION_DATABASE,
 }),
 resave: false,
 saveUninitialized: false,
@@ -134,6 +137,7 @@ passport.deserializeUser(function(userId, done){
             password: results[0].password
         };
 		console.log(user);
+        console.log(db.host);
     });
 });
 
