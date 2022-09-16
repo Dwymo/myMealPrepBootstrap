@@ -45,6 +45,19 @@ const app = express();
 
 app.use(session({
 //Removed private information to test gitignore and upload to GitHub.
+key: db.key,
+secret: db.secret,
+store: new MySQLStore({
+    host     : db.host,
+    user     : db.user,
+    password : db.password,
+    database : db.database
+}),
+resave: false,
+saveUninitialized: false,
+cookie:{
+    maxAge:1000*60*60*24,
+}
 }));
 
 app.use(passport.initialize());
