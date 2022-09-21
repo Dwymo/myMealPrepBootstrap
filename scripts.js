@@ -12,7 +12,9 @@
 	https://expressjs.com/en/starter/basic-routing.html
 	https://www.w3schools.com/nodejs/nodejs_mysql.asp
 	https://jodiss-tri.medium.com/build-a-login-system-in-node-js-using-passport-js-and-mysql-52667cf3cc40
+    https://bootcamp.rocketacademy.co/3-backend-applications/3.2-ejs/3.2.1-ejs-loops
 
+    
 	Additional Information:
 	run this file to connect to DB then go to: http://localhost:3000, on web browser to view the code. 
 */
@@ -40,6 +42,7 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 var session = require('express-session');
 const { localsName } = require('ejs');
+const { runInNewContext } = require('vm');
 var MySQLStore = require('express-mysql-session')(session);
 
 /* Need to look into app.use middleware more */
@@ -137,7 +140,6 @@ passport.deserializeUser(function(userId, done){
             password: results[0].password
         };
 		console.log(user);
-        console.log(db.host);
     });
 });
 
@@ -199,9 +201,37 @@ function userExists(request, response, next)
     });
 }
 
-
-
-
+function renderFood (request, response, next){
+    db.query('SELECT * FROM food', function(error, results, fields) {
+        if (error)
+        {
+            console.log("Error");
+        }
+        else if (results.length > 0)
+        {
+            allFood = [];
+            results.forEach(result => {
+                foodItem = {
+                    id: result.id,
+                    name: result.name,
+                    weight: result.amount + ' ' + result.measurement,
+                    calories: result.calories,
+                    carbohydrates: result.carbohydrates,
+                    fat: result.fat,
+                    protein: result.protein,
+                    saturates: result.saturates,
+                    sugars: result.sugars,
+                    salt: result.salt,
+                    fiber: result.fiber,
+                    addedByID: result.id,     
+                }
+                allFood.push(foodItem);
+            });
+            console.log(allFood[0]);
+            next();
+        }
+    });
+}
 
 // when the follow page is accessed: http://localhost:3000/auth
 app.post('/createAccount', async function(request, response) {
@@ -255,23 +285,19 @@ app.get('/', isLoggedIn, function(request, response) {
 
 app.get('/login', isNotAuth, function(request,response) {
 	response.render('login.ejs');
-  });
+});
 
-  app.post('/login',passport.authenticate('local',{failureRedirect:'/login-failure',successRedirect:'/login-success'}));
+app.post('/login',passport.authenticate('local',{failureRedirect:'/login-failure',successRedirect:'/login-success'}));
+//app.post('/login', passport.authenticate('', { successRedirect: '/profile', failureRedirect: '/login' }));
 
-  //app.post('/login', passport.authenticate('', { successRedirect: '/profile', failureRedirect: '/login' }));
 
-
-  app.get('/login-success', (request, response, next) => {
+app.get('/login-success', (request, response, next) => {
 	response.send('<p>you succesfully logged in. <a href="/profile"> go to your profile</a></p>')
-  });
+});
 
-
-
-  app.get('/login-failure', (request, response, next) => {
-	response.send('you entered the wrong password')
-  });
-
+app.get('/login-failure', (request, response, next) => {
+    response.send('you entered the wrong password')
+});
 
 app.get('/register', function(request,response) {
 	response.render('register.ejs');
@@ -294,14 +320,53 @@ app.get("/profile", isAuth, (request, response) => {
 	response.render('profile.ejs');
 });
 
-app.get("/ingredients", (request, response) => {
-	response.sendFile(path.join(__dirname + '/ingredients.html'));
+app.get('/ingredients', renderFood, function(request,response) {
+    response.render('ingredients.ejs');
 });
+
 
 app.get("/recipes", (request, response) => {
 	response.sendFile(path.join(__dirname + '/recipes.html'));
 });
 
-app.get("/createrecipe", (request, response) => {
-	response.sendFile(path.join(__dirname + '/createrecipe.html'));
-});
+app.post('/createFoodItem', function(request, response, next) {
+    // Capture the input fields
+    let foodName = request.body.foodName;
+    let shop = request.body.shop;
+    let amount = request.body.amount;
+    let measurement = request.body.measurement;
+    let calories = request.body.calories;
+    let carbohydrates = request.body.carbohydrates;
+    let fat = request.body.fat;
+    let protein = request.body.protein;
+    let saturates = request.body.saturates;
+    let sugars = request.body.sugars;
+    let salt = request.body.salt;
+    let fiber = request.body.fiber;
+    let addedByID = user.id;
+    let currentDateTime = new Date();
+    let isPrivate = request.body.isPrivate;
+    if(isPrivate == null) {
+        isPrivate = 0
+    } else{
+        isPrivate = 1
+    }
+
+    
+
+    if(user){
+        db.query('INSERT INTO food (name, shop, amount, measurement, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, addedDateTime, isPrivate)'
+        + 'VALUES (?, ?, ?, ?, ? , ?, ? , ? , ?, ? , ?, ? , ?, ?, ?)',
+        [foodName, shop, amount, measurement, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, currentDateTime, isPrivate],
+        function(error, results, fields) {
+            // If there is an issue with the query, output the error
+            if (error) throw error;
+            // If the food item is added
+            console.log('Food Item has been Created');
+            console.log(isPrivate);
+            response.redirect('/ingredients');
+        });
+        
+    }
+        
+      });

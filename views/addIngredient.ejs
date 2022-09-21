@@ -40,9 +40,102 @@
         </nav>
         <!-- Page content-->
         <div class="container">
-            <div class="text-center mt-5">
-                <h1>Add Ingredients Page</h1>
-            </div>
+            <!--Login-->
+            <div class="newFoodItem text-center mt-5 ">
+                <h1>New Food Item</h1>
+                <!-- on submit(pressing createIngredient), load /createIngredient and post the ingredient data -->
+                <form action="/createFoodItem" method="post">
+                    <!-- div to combine all Ingredint Name data -->
+                    <div class="foodName">
+                        <label for="foodName">Food Name:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="foodName" placeholder="Food Name" required>
+                    </div>
+                    <!-- div to combine all shop data -->
+                    <div class="shop">
+                        <label for="shop">Shop Name:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="shop" placeholder="Shop" required>
+                    </div>
+                    <div class="amount">
+                        <label for="amount">Amount:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="amount" placeholder="100" required>
+                    </div>
+                    <div class="measurement">
+                        <label for="measurement">Measurement:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="measurement" placeholder="Grams" required>
+                    </div>
+                    <div class="calories">
+                        <label for="calories">Calories:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="calories" placeholder="0" required>
+                    </div>
+                    <div class="carbohydrates">
+                        <label for="carbohydrates">Carbohydrates:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="carbohydrates" placeholder="0g" required>
+                    </div>
+                    <div class="fat">
+                        <label for="fat">Fat:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="fat" placeholder="0g" required>
+                    </div>
+                    <div class="protein">
+                        <label for="protein">protein:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="protein" placeholder="0g" required>
+                    </div>
+                    <div class="saturates">
+                        <label for="saturates">saturates:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="saturates" placeholder="0g" required>
+                    </div>
+                    <div class="sugars">
+                        <label for="sugars">sugars:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="sugars" placeholder="0g" required>
+                    </div>
+                    <div class="salt">
+                        <label for="salt">salt:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="salt" name="salt" placeholder="0g" required>
+                    </div>
+                    <div class="fiber">
+                        <label for="fiber">fiber:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="text" name="fiber" placeholder="0g" required>
+                    </div>
+                    <div class="isPrivate">
+                        <label for="isPrivate">isPrivate:</label>
+                        <!--Create a New Line-->
+                        <br>
+                        <input type="checkbox" name="isPrivate">
+                    </div>
+
+
+                
+
+
+
+
+                    <!--Submit Button for logging in-->
+                    <input type="submit" value="Create Food Item">
+                </form>
+            </div> 
         </div>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

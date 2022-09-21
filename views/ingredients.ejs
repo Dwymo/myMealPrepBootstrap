@@ -43,6 +43,31 @@
             <div class="text-center mt-5">
                 <h1>Ingredients Page</h1>
             </div>
+            <div class="food">
+                <table class="table" id="food-list">
+                    <!-- Create an row for each food Item -->
+                    <thead>
+                        <td>Item No: </td>
+                        <td>Name: </td>
+                        <td>Weight: </td>
+                        <td>Calories: </td>
+                        <td>Carbohydrates: </td>
+                        <td>Fat: </td>
+                        <td>Protein: </td>
+                    </thead>
+                    <% allFood.forEach((food) => { %>
+                        <tr> 
+                            <td><%= food.id %></td>
+                            <td><%= food.name %></td>
+                            <td><%= food.weight%></td>
+                            <td><%= food.calories %></td>
+                            <td><%= food.carbohydrates %></td>
+                            <td><%= food.fat %></td>
+                            <td><%= food.protein %></td>
+                        </tr>
+                    <% }); %>
+                </table>
+            </div>
         </div>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
