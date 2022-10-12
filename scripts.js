@@ -14,43 +14,32 @@
 	https://jodiss-tri.medium.com/build-a-login-system-in-node-js-using-passport-js-and-mysql-52667cf3cc40
     https://bootcamp.rocketacademy.co/3-backend-applications/3.2-ejs/3.2.1-ejs-loops
 
-    
 	Additional Information:
 	run this file to connect to DB then go to: http://localhost:3000, on web browser to view the code. 
 */
 
-/*
-	Modules: Need to research more about modules
-	
-	db - Database connection in db.js file - Currently removed this file to test if gitignore will work for uploading to Github
-	express - web framework
-	path - navigation
-*/
-
+//not sure how this works at present
 if (process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
 }
 
-const express = require('express');
-const path = require('path');
-const bcrypt = require('bcrypt');
+// Accessing both the Database and the Passport Configuration so need to require both files
 const db = require('./db');
+const initializePassport = require('./passport-config');
 
+const express = require('express');
+const bcrypt = require('bcrypt');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bodyParser = require('body-parser');
-const mysql = require('mysql2');
 var session = require('express-session');
-const { localsName } = require('ejs');
-const { runInNewContext } = require('vm');
+const e = require('express');
 var MySQLStore = require('express-mysql-session')(session);
 
 /* Need to look into app.use middleware more */
 
 const app = express();
-
 app.use(session({
-//Removed private information to test gitignore and upload to GitHub.
 key: process.env.SESSION_KEY,
 secret: process.env.SESSION_SECRET,
 store: new MySQLStore({
@@ -66,6 +55,8 @@ cookie:{
 }
 }));
 
+initializePassport (passport);
+// Currently deserialize runs 3 times, need to invetigate why this is happening but code works regardless currently
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(bodyParser.json());
@@ -73,9 +64,10 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
+// Use the public folder to enable the Bootstrap CSS file
 app.use(express.static('public'));
+// Use the views folder to allow navigation to these files
 app.use(express.static('views'));
-
 // setting up EJS filetype
 app.set('view engine', 'ejs');
 
@@ -83,71 +75,6 @@ app.set('view engine', 'ejs');
 app.listen(3000);
 
 
-
-const customFields= {
-	usernameField: 'username',
-	passwordField: 'password',
-};
-// const usernameField = 'uname';
-// const passwordField = 'pw';
-
-
-function verifyUser(username, password, done) {
-
-    db.query('SELECT * FROM users WHERE username = ?', [username], function(error, results, fields) {
-        //console.log(results[0]);
-        if (error){
-            return done(error);
-        }
-        if (results.length==0)
-        {
-            return done(null, false, {message: 'No user with that email'});
-        }
-        const isValid=validPassword(password,results[0].password);
-        user = {
-            id: results[0].id,
-            username: results[0].username,
-            password: results[0].password
-        };
-        //console.log(user);
-        if(isValid)
-        {
-            return done(null, user);
-        }
-        else {
-            return done(null, false);
-        }
-    });  
-}
-
-
-const Strategy = new LocalStrategy(customFields, verifyUser);
-passport.use(Strategy);
-
-
-passport.serializeUser((user, done) => {
-    console.log('inside serialize');
-    done(null,user.id)
-});
-
-passport.deserializeUser(function(userId, done){
-    console.log('deserializeUser ' + userId);
-    db.query('SELECT * FROM users WHERE id = ?', [userId], function(error, results) {
-        done(null, results[0]);
-		user = {
-            id: results[0].id,
-            username: results[0].username,
-            password: results[0].password
-        };
-		console.log(user);
-    });
-});
-
-async function validPassword(password,usersPassword)
-{
-    var hashedPassword = await bcrypt.hash(password, 10)
-    return hashedPassword === usersPassword;
-}
 
 function isAuth(request, response, next)
 {
@@ -175,7 +102,7 @@ function isLoggedIn(request, response, next)
 {
     if(request.isAuthenticated())
     {
-        console.log(user);
+        //console.log(user);
 		next();
     }
     else {
@@ -183,23 +110,23 @@ function isLoggedIn(request, response, next)
     }
 }
 
-function userExists(request, response, next)
-{
-    db.query('SELECT * FROM users WHERE username = ?', [request.body.username], function(error, results, fields) {
-        if (error)
-        {
-            console.log("Error");
-        }
-        else if (results.length > 0)
-        {
-            response.redirect('/userAlreadyExists')
-        }
-        else
-        {
-            next()
-        }
-    });
-}
+// function userExists(request, response, next)
+// {
+//     db.query('SELECT * FROM users WHERE username = ?', [request.body.username], function(error, results, fields) {
+//         if (error)
+//         {
+//             console.log("Error");
+//         }
+//         else if (results.length > 0)
+//         {
+//             response.redirect('/userAlreadyExists')
+//         }
+//         else
+//         {
+//             next()
+//         }
+//     });
+// }
 
 function renderFood (request, response, next){
     db.query('SELECT * FROM food', function(error, results, fields) {
@@ -227,13 +154,65 @@ function renderFood (request, response, next){
                 }
                 allFood.push(foodItem);
             });
-            console.log(allFood[0]);
             next();
         }
     });
 }
 
-// when the follow page is accessed: http://localhost:3000/auth
+function renderRecipes (request, response, next){
+    db.query('SELECT * FROM recipes', function(error, results, fields) {
+        if (error)
+        {
+            console.log("Error");
+        }
+        else if (results.length > 0)
+        {
+            allRecipes = [];
+            results.forEach(result => {
+                recipe = {
+                    id: result.id,
+                    name: result.name,
+                    description: result.description,
+                    type: result.type,
+                    serves: result.serves,
+                }
+                allRecipes.push(recipe);
+                console.log(allRecipes);
+            });
+            next();
+        }
+    });
+}
+
+
+/*
+Data Validation was originally being done for each field individually but some validation (such as checking for blank field), was required for multiple fields.
+Doing it this way resulted in haveng a lot of duplicate code (multiple lines for each validation) in each field.
+Could remove bloating by separating each validation into a method here and call the required validations in each field later.
+*/
+function validateBlankField (input, field, messages) {
+//replace each string(/s) with '' to make it empty, /g continues to go through each string even after a succesfull replace (removing /g will stop the replace after first success)
+//if the length does not (!) exist (there are no valid characters in the string).
+//return(stop the code) and log that the input field is blank
+    if(!input.replace(/\s/g, '').length)
+    {
+        messages.push(`${field} is blank`);
+    }
+}
+
+function validateNumber (input, field, messages){
+    //if the input is not a number
+    if(input < 0)
+    {
+        messages.push(`${field} cannot be less than 0`);
+    }
+
+}
+
+//First: Ensure the 'required fields' actually contain data.
+
+
+
 app.post('/createAccount', async function(request, response) {
 	// Capture the input fields
 	let username = request.body.username;
@@ -274,10 +253,6 @@ app.post('/createAccount', async function(request, response) {
 	}
 });
 
-
-/* Get requests to load up the required page at http://localhost:3000/ */
-
-
 app.get('/', isLoggedIn, function(request, response) {
 	// Render the page index.html
 	response.render('index.ejs', {error: false});
@@ -287,13 +262,9 @@ app.get('/login', isNotAuth, function(request,response) {
 	response.render('login.ejs');
 });
 
-app.post('/login',passport.authenticate('local',{failureRedirect:'/login-failure',successRedirect:'/login-success'}));
+app.post('/login',passport.authenticate('local',{failureRedirect:'/login-failure',successRedirect:'/profile'}));
 //app.post('/login', passport.authenticate('', { successRedirect: '/profile', failureRedirect: '/login' }));
 
-
-app.get('/login-success', (request, response, next) => {
-	response.send('<p>you succesfully logged in. <a href="/profile"> go to your profile</a></p>')
-});
 
 app.get('/login-failure', (request, response, next) => {
     response.send('you entered the wrong password')
@@ -303,8 +274,119 @@ app.get('/register', function(request,response) {
 	response.render('register.ejs');
 });
 
-app.get('/addIngredient', function(request,response) {
-	response.render('addIngredient.ejs');
+app.get('/createFood', function(request,response) {
+	response.render('createFood.ejs');
+});
+
+app.get('/viewFood/food=:id', function(request, response) {
+    // response.render('viewFood.ejs', {id: request.params.id});
+    console.log("button working " + request.params.id)
+
+    db.query('SELECT * FROM food where id = ?', [request.params.id], function(error, result, fields) {
+        if (error)
+        {
+            console.log("Error");
+        }
+        else if (result.length > 0)
+        {
+            const food = {
+                    id: result[0].id,
+                    name: result[0].name,
+                    brand: result[0].brand,
+                    shop: result[0].shop,
+                    cost: result[0].cost,
+                    amount: result[0].amount,
+                    measurement: result[0].measurement,
+                    servings: result[0].servings,
+                    calories: result[0].calories,
+                    carbohydrates: result[0].carbohydrates,
+                    fat: result[0].fat,
+                    protein: result[0].protein,
+                    saturates: result[0].saturates,
+                    sugars: result[0].sugars,
+                    salt: result[0].salt,
+                    fiber: result[0].fiber,
+                    addedByID: result[0].addedByID,
+                    addedDateTime: result[0].addedDateTime,
+                    isPrivate: result[0].isPrivate
+                };
+                console.log(food.name);
+                response.render('viewFood.ejs', {food});
+
+        }
+    });
+
+});
+
+app.get('/editRecipe/recipe=:id', function(request, response) {
+    // response.render('viewFood.ejs', {id: request.params.id});
+    console.log("button working " + request.params.id)
+
+    db.query('SELECT * FROM recipes where id = ?', [request.params.id], function(error, result, fields) {
+        if (error)
+        {
+            console.log("Error");
+        }
+        else if (result.length > 0)
+        {
+            const recipe = {
+                    id: result[0].id,
+                    name: result[0].name,
+                    description: result[0].description,
+                    type: result[0].type,
+                    serves: result[0].serves,
+                };
+                console.log(recipe.name);
+                response.render('editRecipe.ejs', {recipe});
+
+        }
+    });
+
+});
+
+app.get('/createRecipe', function(request,response) {
+	response.render('createRecipe.ejs');
+});
+
+app.post('/createRecipe', function(request,response, next) {
+    // Capture the input fields
+    let name = request.body.name;
+    let description = request.body.description;
+    let type = request.body.type;
+    let serves = request.body.serves;
+    let isPrivate = 0; //temp for private field
+
+    // Create an array to store all failed field messages (allow all messages to display at once)
+    let messages = [];
+    validateBlankField(name,'Name', messages);
+    validateBlankField(description,'Description', messages);
+	
+    if(messages.length > 0) {
+        console.log(messages.join('\n'))
+        return {message: messages.join('\n')};
+    }
+
+    if(user){
+        db.query('INSERT INTO recipes (name, description, type, serves, isPrivate)'
+        + 'VALUES (?, ?, ?, ?, ?)',
+        [name, description, type, serves, isPrivate],
+        function(error, results, fields) {
+            // If there is an issue with the query, output the error
+            if (error) throw error;
+            // If the food item is added
+            console.log(`recipe: ${name} has been Created`);
+       
+            db.query('SELECT * FROM recipes where name = ?', [name], function(error, results, fields){
+                if (error) throw error;
+                const id = results[0].id;
+                console.log(results[0]);
+                response.redirect('/editRecipe/recipe='+id);
+            });
+            console.log('Test end of creating recipe')
+        });
+        
+    }
+    
 });
 
 app.post('/logout', function(request, response, next) {
@@ -316,25 +398,47 @@ app.post('/logout', function(request, response, next) {
       });
 })
 
+
 app.get("/profile", isAuth, (request, response) => {
 	response.render('profile.ejs');
 });
 
-app.get('/ingredients', renderFood, function(request,response) {
-    response.render('ingredients.ejs');
+
+// app.get('/food', renderFood, function(request,response) {
+//     response.render('food.ejs');
+// });
+
+app.get('/food/recipe=:id', renderFood, function(request,response) {
+    console.log('Recipe id is: '+request.params.id);
+    if(request.params.id){
+        const recipeID = request.params.id;
+    response.render('food.ejs', {id: recipeID});
+
+    }
+    else{
+        response.render('food.ejs');
+    }
+
+    // console.log("button working " + request.params.id)
 });
 
 
-app.get("/recipes", (request, response) => {
-	response.sendFile(path.join(__dirname + '/recipes.html'));
+
+
+app.get('/recipes', renderRecipes, function(request,response) {
+    response.render('recipes.ejs');
 });
 
 app.post('/createFoodItem', function(request, response, next) {
     // Capture the input fields
-    let foodName = request.body.foodName;
+    let name = request.body.name;
+    let brand = request.body.brand;
     let shop = request.body.shop;
+    let cost = request.body.pound * 100 + request.body.pence; //multiply the pound by 100 to convert it to pense
+    //let cost = request.body.pence; //easier to test temporarily without the calculation
     let amount = request.body.amount;
     let measurement = request.body.measurement;
+    let servings = request.body.servings;
     let calories = request.body.calories;
     let carbohydrates = request.body.carbohydrates;
     let fat = request.body.fat;
@@ -351,20 +455,72 @@ app.post('/createFoodItem', function(request, response, next) {
     } else{
         isPrivate = 1
     }
-
+    // Validate the entered food details above
     
+    /* 
+        Too much bloating.
+        After the first fail the code stops so you cant log all errors at once.
+        Removing the returns will prevent the code from stopping if one or more has an error
+            if(!name.replace(/\s/g, '').length){
+                return console.log('Name is blank');
+            }
+            if(!amount.replace(/\s/g, '').length){
+                return console.log('Amount is blank');
+            }
+            if(!measurement.replace(/\s/g, '').length){
+                return console.log('Measurement is blank');
+            }
+            if(!servings.replace(/\s/g, '').length){
+                return console.log('Servings is blank');
+            }
+            if(!calories.replace(/\s/g, '').length){
+                return console.log('Calories is blank');
+            }
+            if(!carbohydrates.replace(/\s/g, '').length){
+                return console.log('Carbohydrates is blank');
+            }
+            if(!fat.replace(/\s/g, '').length){
+                return console.log('Fat is blank');
+            }
+            if(!protein.replace(/\s/g, '').length){
+                return console.log('Protein is blank');
+            }
+    */
+    // Create an array to store all failed field messages (allow all messages to display at once)
+    let messages = [];
+    // Create a single method that will check for blank fields that can be used throughout all the app to remove bloating
+    //send through the value of the field, the name of the field and the messages array to add the new message if required
+    validateBlankField(name,'Name', messages);
+    validateBlankField(amount,'Amount', messages);
+    validateBlankField(measurement,'Measurement', messages);
+    validateBlankField(servings,'Servings', messages);
+    validateBlankField(calories,'Calories', messages);
+    validateBlankField(carbohydrates,'Carbohydrates', messages);
+    validateBlankField(fat,'Fat', messages);
+    validateBlankField(protein,'Protein', messages);
+
+    validateNumber(calories, 'Calories', messages)
+    validateNumber(carbohydrates,'Carbohydrates', messages);
+    validateNumber(fat,'Fat', messages);
+    validateNumber(protein,'Protein', messages);
+    validateNumber(request.body.pound,'Pound', messages);
+    validateNumber(request.body.pence,'Pence', messages);
+
+    if(messages.length > 0) {
+        console.log(messages.join('\n'))
+        return {message: messages.join('\n')};
+    }
 
     if(user){
-        db.query('INSERT INTO food (name, shop, amount, measurement, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, addedDateTime, isPrivate)'
-        + 'VALUES (?, ?, ?, ?, ? , ?, ? , ? , ?, ? , ?, ? , ?, ?, ?)',
-        [foodName, shop, amount, measurement, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, currentDateTime, isPrivate],
+        db.query('INSERT INTO food (name, brand, shop, cost, amount, measurement, servings, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, addedDateTime, isPrivate)'
+        + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [name, brand, shop, cost, amount, measurement, servings, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, currentDateTime, isPrivate],
         function(error, results, fields) {
             // If there is an issue with the query, output the error
             if (error) throw error;
             // If the food item is added
-            console.log('Food Item has been Created');
-            console.log(isPrivate);
-            response.redirect('/ingredients');
+            console.log(`Food Item ${name} has been Created`);
+            response.redirect('/food');
         });
         
     }

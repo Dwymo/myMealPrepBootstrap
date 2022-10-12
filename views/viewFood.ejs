@@ -24,7 +24,7 @@
                 <div class="nav-links navbar-expand-lg">
                     <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/ingredients">Ingredients</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/food">Food</a></li>
                         <li class="nav-item"><a class="nav-link" href="/recipes">Recipes</a></li>
                     </ul>
                 </div>
@@ -40,12 +40,28 @@
         </nav>
         <!-- Page content-->
         <div class="container">
-            <div class="text-center mt-5">
-                <h1>Recipes Page</h1>
+            <div class="food text-center mt-4">
+                <h1>View food</h1>
+                <h2>ID: <%= food.id %></h2>
+                <h2>Name: <%= food.name %></h2>
+                <h2>Shop: <%= food.shop %></h2>
+                <h2>Amount: <%= food.amount %></h2>
+                <h2>measurement: <%= food.measurement %></h2>
+                <h2>Calories: <%= food.calories %></h2>
+                <h2>Carbohydrates: <%= food.carbohydrates %></h2>
+                <h2>Fat: <%= food.fat %></h2>
+                <h2>Protein: <%= food.protein %></h2>
+                <h2>Saturates: <%= food.saturates %></h2>
+                <h2>Sugars: <%= food.sugars %></h2>
+                <h2>Salt: <%= food.salt %></h2>
+                <h2>Fiber: <%= food.fiber %></h2>
+                <h2>Added By ID: <%= food.addedByID %></h2>
+                <h2>Added Date/Time: <%= food.addedDateTime %></h2>
+                <h2><%= food.isPrivate %></h2>
             </div>
         </div>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Bootstrap CSS only-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
     </body>

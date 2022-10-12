@@ -23,8 +23,8 @@
                 <!-- Main Nav links -->
                 <div class="nav-links navbar-expand-lg">
                     <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/food/recipe=:id">Food</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/food">Food</a></li>
                         <li class="nav-item"><a class="nav-link" href="/recipes">Recipes</a></li>
                     </ul>
                 </div>
@@ -49,14 +49,36 @@
         <!-- Page content-->
         <div class="container">
             <div class="text-center mt-5">
-                <h1>A Bootstrap Template for My Meal Prep</h1>
-                <% if (typeof user !== 'undefined') { %>
-                    <h1> <%= user.username %> </h1>
-                <% } else { %>
-                    <h1> User not logged in </h1>
-                    <% } %>
-                <p class="lead">A project boilerplate built with Bootstrap</p>
-                <p>Bootstrap v5.1.3</p>
+                <h1>Select Food</h1>
+            </div>
+            <div class="food">
+                <table class="table" id="food-list">
+                    <!-- Create an row for each food Item -->
+                    <thead>
+                        <td>Item No: </td>
+                        <td>Name: </td>
+                        <td>Weight: </td>
+                        <td>Calories: </td>
+                        <td>Carbohydrates: </td>
+                        <td>Fat: </td>
+                        <td>Protein: </td>
+                    </thead>
+                    <% allFood.forEach((food) => { %>
+                        <tr> 
+                            <td><%= food.id %></td>
+                            <td><%= food.name %></td>
+                            <td><%= food.weight%></td>
+                            <td><%= food.calories %></td>
+                            <td><%= food.carbohydrates %></td>
+                            <td><%= food.fat %></td>
+                            <td><%= food.protein %></td>
+                            <td>
+                                    <!--  Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
+                                    <a class="btnviewFood" href="/viewFood/food=<%= food.id %>" ><%= food.id %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </table>
             </div>
         </div>
         <!-- Bootstrap CSS only-->
