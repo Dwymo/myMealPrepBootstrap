@@ -69,10 +69,34 @@
                         <label for="recipeImage">Add Image (currently not used)</label>
                         <input type="file" class="form-control-file" id="recipeImage">
                     </div>
+
                     <h1 class="text-center mt-5">Edit Recipe Ingredients</h1>
                     <!--  Created a href to send through the id of the selected Recipe to the url to use in the SelecetedFood page  -->
-                    <a href="/food/recipe=<%= recipe.id %>">Add Ingredient</a>
-                    <h1 class="text-center mt-5">Edit Recipe Ingredients</h1>
+                    <table class="table" id="recipeIngredient-list">
+                        <tr>
+                            <a href="/food/recipe=<%= recipe.id %>">Add Ingredient</a>
+                        </tr>
+                        <thead>
+                            <td>recipe id: </td>
+                            <td>ingredient id: </td>
+                            <td>amount: </td>
+                            <td>weight: </td>
+                            
+                        </thead>
+                        <% if (typeof allRecipeIngredients !== 'undefined') { %>
+                            <% allRecipeIngredients.forEach((recipeIngredient) => { %>
+                        <tr> 
+                            <td><%= recipeIngredient.recipeid %></td>
+                            <td><%= recipeIngredient.ingredientid%></td>
+                            <td><%= recipeIngredient.amount %></td>
+                            <td><%= recipeIngredient.measurement %></td>
+                            <td><a class="btnAddIngredient" href="/editRecipeIngredient/recipe=<%= recipe.id %>&ingredient=<%= recipeIngredient.ingredientid%>&recipeIngredient=<%= recipeIngredient.recipeIngredientid%> ">Edit Ingredient:</a></td>
+                            <td><a class="btnAddIngredient" href="" >Remove Ingredient:</a></td>
+                        </tr>
+                        <% }); %>
+                    </table>
+                    <% } %>
+                    <h1 class="text-center mt-5">Edit Recipe Instructions</h1>
                     <input class="btn btn-primary" type="submit" value="Add Instruction">
                     <!-- Submit Button for Creating the Base of a Recupe (added button into a div to help center) -->
                     <div class="button text-center mt-5">

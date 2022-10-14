@@ -39,26 +39,63 @@
             </div>
         </nav>
         <!-- Page content-->
-        <div class="container">
-            <div class="food text-center mt-4">
-                <h1>View food</h1>
-                <h2>ID: <%= food.id %></h2>
-                <h2>Name: <%= food.name %></h2>
-                <h2>Shop: <%= food.shop %></h2>
-                <h2>Amount: <%= food.amount %></h2>
-                <h2>measurement: <%= food.measurement %></h2>
-                <h2>Calories: <%= food.calories %></h2>
-                <h2>Carbohydrates: <%= food.carbohydrates %></h2>
-                <h2>Fat: <%= food.fat %></h2>
-                <h2>Protein: <%= food.protein %></h2>
-                <h2>Saturates: <%= food.saturates %></h2>
-                <h2>Sugars: <%= food.sugars %></h2>
-                <h2>Salt: <%= food.salt %></h2>
-                <h2>Fiber: <%= food.fiber %></h2>
-                <h2>Added By ID: <%= food.addedByID %></h2>
-                <h2>Added Date/Time: <%= food.addedDateTime %></h2>
-                <h2><%= food.isPrivate %></h2>
-            </div>
+        <div class="food">
+            <table class="table" id="food-details">
+                <!-- Create an row for each food Item -->
+                <thead>
+                    <h1>View Food</h1>
+                </thead>
+                        <tr>
+                            <td>ID: </td>
+                            <td><%= food.id %></td>
+                        </tr>
+                        <tr>
+                            <td>Name: </td>
+                            <td><%= food.name %> (<%= food.shop %>)</td>
+                        </tr>
+                        <tr>
+                            <td>Amount: </td>
+                            <td><%= food.amount %></td>
+                        </tr>
+                        <tr>
+                            <td>measurement: </td> 
+                            <td><%= food.measurement %></td>
+                        </tr>
+                        <tr>
+                            <td>Calories: </td>
+                            <td><%= food.calories %></td>
+                        </tr>
+                        <tr>
+                            <td>Carbohydrates: </td> 
+                            <td><%= food.carbohydrates %></td>
+                        </tr>
+                        <tr>
+                            <td>Fat: </td>
+                            <td><%= food.fat %></td>
+                        </tr>
+                        <tr>
+                            <td>Protein: </td> 
+                            <td><%= food.protein %></td>
+                        </tr>
+                        <tr>
+                            <td><a class="btnviewFood" href="" > Edit food amount</td>
+                        </tr>
+                        <tr>
+                            <td><a class="btnviewFood" href="" > Add food to recipe</td>
+                        </tr>
+                        <tr>
+                            <td><a class="btnviewFood" href="" > Edit the Recipe food</td>
+                        </tr>
+                        <!-- Passed through recipeID as id -->
+                        <%if(typeof id !== 'undefined') { %> 
+                        <% if(id) { %>
+                        <td>
+                            <!--  Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
+                            <a class="btnAddIngredient" href="/addIngredient/recipe=<%= id %>&food=<%= food.id %>" >Add Ingredient to Recipe: <%= id %>
+                        </td>
+                        <% } %>
+                <% } %>
+            </table>
         </div>
         <!-- Bootstrap CSS only-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">

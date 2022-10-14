@@ -184,6 +184,10 @@ function renderRecipes (request, response, next){
     });
 }
 
+function saveRecipe(request, response, next){
+
+}
+
 
 /*
 Data Validation was originally being done for each field individually but some validation (such as checking for blank field), was required for multiple fields.
@@ -318,32 +322,6 @@ app.get('/viewFood/food=:id', function(request, response) {
 
 });
 
-app.get('/editRecipe/recipe=:id', function(request, response) {
-    // response.render('viewFood.ejs', {id: request.params.id});
-    console.log("button working " + request.params.id)
-
-    db.query('SELECT * FROM recipes where id = ?', [request.params.id], function(error, result, fields) {
-        if (error)
-        {
-            console.log("Error");
-        }
-        else if (result.length > 0)
-        {
-            const recipe = {
-                    id: result[0].id,
-                    name: result[0].name,
-                    description: result[0].description,
-                    type: result[0].type,
-                    serves: result[0].serves,
-                };
-                console.log(recipe.name);
-                response.render('editRecipe.ejs', {recipe});
-
-        }
-    });
-
-});
-
 app.get('/createRecipe', function(request,response) {
 	response.render('createRecipe.ejs');
 });
@@ -389,6 +367,134 @@ app.post('/createRecipe', function(request,response, next) {
     
 });
 
+app.get('/editRecipe/recipe=:id', function(request, response) {
+    // response.render('viewFood.ejs', {id: request.params.id});
+    console.log("button working " + request.params.id)
+
+    db.query('SELECT * FROM recipes where id = ?', [request.params.id], function(error, result, fields) {
+        if (error)
+        {
+            console.log("Error");
+        }
+        else if (result.length > 0)
+        {
+            const recipe = {
+                    id: result[0].id,
+                    name: result[0].name,
+                    description: result[0].description,
+                    type: result[0].type,
+                    serves: result[0].serves,
+                };
+                console.log(recipe.name);
+                db.query('SELECT * FROM recipeIngredient where recipeid = ?', [request.params.id], function(error, results, fields) {
+                    if (error)
+                    {
+                        console.log(error);
+                    }
+                    else if (results.length > 0)
+                    {
+                        allRecipeIngredients = [];
+                        results.forEach(result => {
+                            recipeIngredient = {
+                                recipeIngredientid: result.id,
+                                recipeid: result.recipeid,
+                                ingredientid: result.ingredientid,
+                                amount: result.amount,
+                                measurement: result.measurement,
+                            }
+                            allRecipeIngredients.push(recipeIngredient);
+                        });
+                        console.log(allRecipeIngredients);
+                        response.render('editRecipe.ejs', {recipe, allRecipeIngredients});
+                    }
+                    else {
+                        console.log("No Ingredients Exist");
+                        // empty any previous recipeList that might still exist from a previous recipe view that had some
+                        allRecipeIngredients = [];
+                        response.render('editRecipe.ejs', {recipe});
+                    }
+                });
+                
+        }
+    });
+
+});
+
+app.get('/addIngredient/recipe=:id&food=:foodid', function (request, response) {
+    const id = request.params.id;
+    const food = request.params.foodid;
+
+    //Link the selected Recipe with the currently selected Ingredient
+    db.query('INSERT INTO recipeIngredient (recipeid, ingredientid)'
+    + 'VALUES (?, ?)',
+    [id, food],
+    function(error, results, fields) {
+        // If there is an issue with the query, output the error
+        if (error) throw error;
+        // If the food item is added
+        console.log(`Food Item ${food} has been Added to recipe ${id}`);
+        //redirect back to the edit recipe page for the currently selected recipe
+        response.redirect('/editRecipe/recipe='+id);
+    });
+});
+
+app.get('/removeIngredient/recipe=:recipeid&ingredient=:recipeIngredientid', function (request, response) {
+    const recipeIngredientid = request.params.recipeIngredientid;
+    const recipeid = request.params.recipeid;
+    console.log(recipeIngredientid);
+    db.query('DELETE FROM recipeIngredient where id = ?', [recipeIngredientid], function(error, results, fields) {
+        // If there is an issue with the query, output the error
+        if (error) throw error;
+        // If the food item is Removed
+        console.log(`Food Item ${recipeIngredientid} has been Removed from the Recipe: ${recipeid}`);
+        //redirect back to the edit recipe page for the currently selected recipe
+        response.redirect('/editRecipe/recipe='+recipeid);
+    });
+});
+
+app.get('/editRecipeIngredient/recipe=:recipeid&ingredient=:foodid&recipeIngredient=:recipefoodid', function (request, response) {
+    const recipeid = request.params.recipeid;
+    const foodid = request.params.foodid;
+    const recipefoodid = request.params.recipefoodid;
+
+    //Select all the data required and group it together for viewing
+
+    db.query('SELECT * FROM food where id = ?', [foodid], function(error, result, fields) {
+        if (error)
+        {
+            console.log("Error");
+        }
+        else if (result.length > 0)
+        {
+            const food = {
+                    id: result[0].id,
+                    name: result[0].name,
+                    brand: result[0].brand,
+                    shop: result[0].shop,
+                    cost: result[0].cost,
+                    amount: result[0].amount,
+                    measurement: result[0].measurement,
+                    servings: result[0].servings,
+                    calories: result[0].calories,
+                    carbohydrates: result[0].carbohydrates,
+                    fat: result[0].fat,
+                    protein: result[0].protein,
+                    saturates: result[0].saturates,
+                    sugars: result[0].sugars,
+                    salt: result[0].salt,
+                    fiber: result[0].fiber,
+                    addedByID: result[0].addedByID,
+                    addedDateTime: result[0].addedDateTime,
+                    isPrivate: result[0].isPrivate
+                };
+                console.log(food.name);
+                response.render('editRecipeIngredient.ejs', {food});
+
+        }
+    });
+
+});
+
 app.post('/logout', function(request, response, next) {
     request.logout(function(err) {
         if (err) { return next(err); }
@@ -396,7 +502,7 @@ app.post('/logout', function(request, response, next) {
         delete user;
         console.log('User has logged out');
       });
-})
+});
 
 
 app.get("/profile", isAuth, (request, response) => {
