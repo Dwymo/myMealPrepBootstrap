@@ -90,8 +90,10 @@
                             <td><%= recipeIngredient.ingredientid%></td>
                             <td><%= recipeIngredient.amount %></td>
                             <td><%= recipeIngredient.measurement %></td>
-                            <td><a class="btnAddIngredient" href="/editRecipeIngredient/recipe=<%= recipe.id %>&ingredient=<%= recipeIngredient.ingredientid%>&recipeIngredient=<%= recipeIngredient.recipeIngredientid%> ">Edit Ingredient:</a></td>
-                            <td><a class="btnAddIngredient" href="" >Remove Ingredient:</a></td>
+                            <!-- passing through the recipe id so that once the delete has been done the app knows what recipe to return to -->
+                            <td><a class="btnAddIngredient" href="/viewRecipeIngredient/recipe=<%= recipeIngredient.recipeid %>&recipeIngredient=<%= recipeIngredient.recipeIngredientid %>" >Edit Ingredient:</a></td>
+                            <!-- passing through the recipe id so that once the delete has been done the app knows what recipe to return to -->
+                            <td><a class="btnAddIngredient" href="/removeIngredient/recipe=<%= recipeIngredient.recipeid %>&recipeIngredient=<%= recipeIngredient.recipeIngredientid %>" >Remove Ingredient:</a></td>
                         </tr>
                         <% }); %>
                     </table>

@@ -40,25 +40,52 @@
         </nav>
         <!-- Page content-->
         <div class="container">
-            <div class="food text-center mt-4">
-                <h1>Edit food</h1>
-                <h2>ID: <%= food.id %></h2>
-                <h2>Name: <%= food.name %></h2>
-                <h2>Shop: <%= food.shop %></h2>
-                <h2>Amount: <%= food.amount %></h2>
-                <h2>measurement: <%= food.measurement %></h2>
-                <h2>Calories: <%= food.calories %></h2>
-                <h2>Carbohydrates: <%= food.carbohydrates %></h2>
-                <h2>Fat: <%= food.fat %></h2>
-                <h2>Protein: <%= food.protein %></h2>
-                <h2>Saturates: <%= food.saturates %></h2>
-                <h2>Sugars: <%= food.sugars %></h2>
-                <h2>Salt: <%= food.salt %></h2>
-                <h2>Fiber: <%= food.fiber %></h2>
-                <h2>Added By ID: <%= food.addedByID %></h2>
-                <h2>Added Date/Time: <%= food.addedDateTime %></h2>
-                <h2><%= food.isPrivate %></h2>
-            </div>
+            <table class="table">
+
+                <tr><td>Name: <%= food.name %></td></tr>
+                <tr><td>Shop: <%= food.shop %></td></tr>
+                <tr class="text-center"><td><h1>Macros</h1></td></tr>
+                <tr><td>Calories: <%= food.calories %></td></tr>
+                <tr><td>Carbohydrates: <%= food.carbohydrates %></td></tr>
+                <tr><td>Fat: <%= food.fat %></td></tr>
+                <tr><td>Protein: <%= food.protein %></td></tr>
+                <tr class="text-center"><td><h1>Other</h1></td></tr>
+                <tr><td>Saturates: <%= food.saturates %></td></tr>
+                <tr><td>Sugars: <%= food.sugars %></td></tr>
+                <tr><td>Salt: <%= food.salt %></td></tr>
+                <tr><td>Fiber: <%= food.fiber %></td></tr>
+            </table>
+            <form action="/editIngredient" method="post">
+                <!-- Form for editing the amount of ingredient required - Each input will be grouped seperatly -->
+                <div class="form-group row mt-4">
+                    <h2 class="text-center">Edit Food Amount</h2>
+                    <div class="form-group col-3">
+                        <label for="amount">Amount:</label>
+                        <input class="form-control" type="number" name="amount" value="<%= food.measurement %>">
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="measurement">Measurement:</label>
+                        <input class="form-control" type="text" name="measurement" value="<%= food.measurement %>">
+                    </div>
+                    <!-- Submit Button for Editing the Ingredient (added button into a div to help center) -->
+                    <div class="button text-center mt-5">
+                        <input class="btn btn-primary" type="submit" value="Edit Ingredient">
+                    </div>
+                </div>
+            </form>
+
+                <!-- <tr><td>Name: <%= food.name %></td></tr>
+                <tr><td>Shop: <%= food.shop %></td></tr>
+                <tr><td>Amount: <%= food.amount %></td></tr>
+                <tr><td>measurement: <%= food.measurement %></td></tr>
+                <tr><td>Calories: <%= food.calories %></td></tr>
+                <tr><td>Carbohydrates: <%= food.carbohydrates %></td></tr>
+                <tr><td>Fat: <%= food.fat %></td></tr>
+                <tr><td>Protein: <%= food.protein %></td></tr>
+                <tr><td>Saturates: <%= food.saturates %></td></tr>
+                <tr><td>Sugars: <%= food.sugars %></td></tr>
+                <tr><td>Salt: <%= food.salt %></td></tr>
+                <tr><td>Fiber: <%= food.fiber %></td></tr> -->
         </div>
         <!-- Bootstrap CSS only-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
