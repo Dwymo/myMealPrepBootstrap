@@ -94,6 +94,13 @@
                         <label for="measurement">Measurement:</label>
                         <input class="form-control" type="text" name="measurement" value="<%= food.measurement %>">
                     </div>
+                    <!-- If we have not selected a recipe, we are then editing a food item and not an ingredient so show the serving amount -->
+                    <% if (typeof recipeid == 'undefined'){ %>
+                        <div class="form-group col-2">
+                            <label for="servings">Total Servings:</label>
+                            <input class="form-control" type="number" name="servings" value="<%= food.servings %>">
+                        </div>
+                        <% } %>
                 </div>
                 <!-- row for Calories & Macros - Each input will be grouped seperatly -->
                 <div class="form-group row mt-4">

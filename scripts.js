@@ -96,19 +96,7 @@ function isNotAuth(request, response, next)
     else {
         next();
     }
-}
-
-function isLoggedIn(request, response, next)
-{
-    if(request.isAuthenticated())
-    {
-        //console.log(user);
-		next();
-    }
-    else {
-        next();
-    }
-}
+}4
 
 // function userExists(request, response, next)
 // {
@@ -128,34 +116,41 @@ function isLoggedIn(request, response, next)
 //     });
 // }
 
-function renderFood (request, response, next){
-    db.query('SELECT * FROM food', function(error, results, fields) {
+
+//Create an array of All the food that is either: public or created by the user.
+function renderFood(request, response, next) {
+    /* 
+        Error: user.id is undefined if user is not logged in.
+        To work around this:
+        Create a variable (id):
+        User logged-in: set to user.id
+        User NOT logged-in: set to blank to still be defined but no results will be found
+    */
+    if(request.isAuthenticated()) {
+        id = user.id;
+    } else {
+        id = '';
+    }
+    db.query('SELECT * FROM food where isPrivate = 0 or addedByID = ?', [id], function(error, results) {
         if (error)
         {
-            console.log("Error");
+            console.log(error);
         }
-        else if (results.length > 0)
-        {
             allFood = [];
             results.forEach(result => {
                 foodItem = {
-                    id: result.id,
+                    id: result.id, //Not going to be shown to user by used in other functions
                     name: result.name,
-                    weight: result.amount + ' ' + result.measurement,
+                    measurement: result.amount + ' ' + result.measurement,
                     calories: result.calories,
+                    //Will be visible in desktop mode to provide more info on larger screen but removed in mobile
                     carbohydrates: result.carbohydrates,
                     fat: result.fat,
-                    protein: result.protein,
-                    saturates: result.saturates,
-                    sugars: result.sugars,
-                    salt: result.salt,
-                    fiber: result.fiber,
-                    addedByID: result.id,     
+                    protein: result.protein
                 }
                 allFood.push(foodItem);
             });
             next();
-        }
     });
 }
 
@@ -257,7 +252,7 @@ app.post('/createAccount', async function(request, response) {
 	}
 });
 
-app.get('/', isLoggedIn, function(request, response) {
+app.get('/', function(request, response) {
 	// Render the page index.html
 	response.render('index.ejs', {error: false});
 });
@@ -288,16 +283,18 @@ Food-Ingredient Page will be accessed for two different requests:
 1. Food - User is wanting to view an existing foods content
 2. Ingredient - User is selecting an Ingredient from the list of created food
 */
+
 app.get('/food', renderFood, function(request,response) {
     console.log('Viewing all Food in System')
     response.render('food.ejs');
 });
 
-app.get('/food/recipe=:id', renderFood, function(request,response) {
-    console.log('Selecting Ingredient for Recipe id: '+request.params.id);
-    const recipid = request.params.id;
-    response.render('food.ejs', {recipeid: recipid});
-});
+
+// app.get('/food/recipe=:id', renderFood, function(request,response) {
+//     console.log('Selecting Ingredient for Recipe id: '+request.params.id);
+//     const recipid = request.params.id;
+//     response.render('food.ejs', {recipeid: recipid});
+// });
 
 /* 
 View Food Page will be required for three different reasons:
@@ -579,6 +576,7 @@ app.get('/editRecipe/recipe=:id', function(request, response) {
                             recipeIngredient = {
                                 recipeIngredientid: result.id,
                                 recipeid: result.recipeid,
+                                recipename: result.ingredientName,
                                 ingredientid: result.ingredientid,
                                 amount: result.amount,
                                 measurement: result.measurement,

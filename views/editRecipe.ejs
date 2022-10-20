@@ -77,8 +77,7 @@
                             <a href="/food/recipe=<%= recipe.id %>">Add Ingredient</a>
                         </tr>
                         <thead>
-                            <td>recipe id: </td>
-                            <td>ingredient id: </td>
+                            <td>name: </td>
                             <td>amount: </td>
                             <td>weight: </td>
                             
@@ -86,8 +85,7 @@
                         <% if (typeof allRecipeIngredients !== 'undefined') { %>
                             <% allRecipeIngredients.forEach((recipeIngredient) => { %>
                         <tr> 
-                            <td><%= recipeIngredient.recipeid %></td>
-                            <td><%= recipeIngredient.ingredientid%></td>
+                            <td><%= recipeIngredient.ingredientName%></td>
                             <td><%= recipeIngredient.amount %></td>
                             <td><%= recipeIngredient.measurement %></td>
                             <!-- passing through the recipe id so that once the delete has been done the app knows what recipe to return to -->
