@@ -149,19 +149,31 @@ function renderFood(request, response, next) {
                     protein: result.protein
                 }
                 allFood.push(foodItem);
+                //console.log(allFood);
             });
             next();
     });
 }
 
+//Create an array of All the Recipes that are either: public or created by the user.
 function renderRecipes (request, response, next){
-    db.query('SELECT * FROM recipes', function(error, results, fields) {
+        /* 
+        Error: user.id is undefined if user is not logged in.
+        To work around this:
+        Create a variable (id):
+        User logged-in: set to user.id
+        User NOT logged-in: set to blank to still be defined but no results will be found
+    */
+        if(request.isAuthenticated()) {
+            id = user.id;
+        } else {
+            id = '';
+        }
+    db.query('SELECT * FROM recipes where isPrivate = 0 or addedByID = ?', [id], function(error, results, fields) {
         if (error)
         {
-            console.log("Error");
+            console.log(error);
         }
-        else if (results.length > 0)
-        {
             allRecipes = [];
             results.forEach(result => {
                 recipe = {
@@ -172,15 +184,10 @@ function renderRecipes (request, response, next){
                     serves: result.serves,
                 }
                 allRecipes.push(recipe);
-                console.log(allRecipes);
+                // console.log(allRecipes);
             });
             next();
-        }
     });
-}
-
-function saveRecipe(request, response, next){
-
 }
 
 
@@ -208,7 +215,16 @@ function validateNumber (input, field, messages){
 
 }
 
-//First: Ensure the 'required fields' actually contain data.
+function calculateServing(perServingLogged, actualServingRequired, nutrition){
+    /*Example: nutrition = 80, perServingLogged = 100, actualServingRequired = 50,
+    80 nutrition / 100 Serving logged = 0.8,
+    0.8 * by the 50g requiredServing = 40,
+    return actualServingRequired is 40 nutrition
+    */
+   const result = nutrition / perServingLogged * actualServingRequired;
+   // Reound result to 1 decimal place if required
+    return Math.round(result * 10) / 10;
+}
 
 
 
@@ -252,6 +268,8 @@ app.post('/createAccount', async function(request, response) {
 	}
 });
 
+
+
 app.get('/', function(request, response) {
 	// Render the page index.html
 	response.render('index.ejs', {error: false});
@@ -290,11 +308,11 @@ app.get('/food', renderFood, function(request,response) {
 });
 
 
-// app.get('/food/recipe=:id', renderFood, function(request,response) {
-//     console.log('Selecting Ingredient for Recipe id: '+request.params.id);
-//     const recipid = request.params.id;
-//     response.render('food.ejs', {recipeid: recipid});
-// });
+app.get('/food/recipe=:id', renderFood, function(request,response) {
+    console.log('Selecting Ingredient for Recipe id: '+request.params.id);
+    const recipid = request.params.id;
+    response.render('food.ejs', {recipeid: recipid});
+});
 
 /* 
 View Food Page will be required for three different reasons:
@@ -536,7 +554,7 @@ app.post('/createRecipe', function(request,response, next) {
                 if (error) throw error;
                 const id = results[0].id;
                 console.log(results[0]);
-                response.redirect('/editRecipe/recipe='+id);
+                response.redirect('/viewRecipe/recipe='+id);
             });
             console.log('Test end of creating recipe')
         });
@@ -545,14 +563,81 @@ app.post('/createRecipe', function(request,response, next) {
     
 });
 
-app.get('/editRecipe/recipe=:id', function(request, response) {
+// app.get('/viewRecipe/recipe=:id', function(request, response) {
+//     // response.render('viewFood.ejs', {id: request.params.id});
+//     console.log("View Recipe:  " + request.params.id)
+
+//     db.query('SELECT * FROM recipes where id = ?', [request.params.id], function(error, result, fields) {
+//         if (error)
+//         {
+//             console.log(error);
+//         }
+//         else if (result.length > 0)
+//         {
+//             const recipe = {
+//                     id: result[0].id,
+//                     name: result[0].name,
+//                     description: result[0].description,
+//                     type: result[0].type,
+//                     serves: result[0].serves,
+//                 };
+//                 console.log(recipe.name);
+//                 db.query('SELECT * FROM recipeIngredient where recipeid = ?', [request.params.id], function(error, results, fields) {
+//                     if (error)
+//                     {
+//                         console.log(error);
+//                     }
+//                     else if (results.length > 0)
+//                     {
+//                         allRecipeIngredients = [];
+//                         results.forEach( result => {
+//                             db.query('SELECT * FROM food where id = ?', [result.ingredientid], function(error, foodresult, fields) {
+//                                 if (error)
+//                                 {
+//                                     console.log(error);
+//                                 }
+//                                 console.log("Food Result for:");
+//                                 console.log(foodresult);
+//                                 // console.log("Food Result is: " + foodresult.id);
+                            
+//                                 recipeIngredient = {
+//                                     recipeIngredientid: result.id,
+//                                     recipeid: result.recipeid,
+//                                     ingredientName: result.ingredientName,
+//                                     ingredientid: result.ingredientid,
+//                                     amount: result.amount,
+//                                     measurement: result.measurement,
+//                                 }
+//                                 allRecipeIngredients.push(recipeIngredient);
+//                                 console.log("Checking allRecipeIngredienst after each forEach :" + allRecipeIngredients);
+//                             });
+                           
+//                         });
+//                         console.log("allRecipeIngredienst:" + allRecipeIngredients);
+//                         response.render('viewRecipe.ejs', {recipe, allRecipeIngredients});
+//                     }
+//                     else {
+//                         console.log("No Ingredients Exist");
+//                         // empty any previous recipeList that might still exist from a previous recipe view that had some
+//                         allRecipeIngredients = [];
+//                         response.render('viewRecipe.ejs', {recipe});
+//                     }
+//                 });
+                
+//         }
+//     });
+
+// });
+
+
+app.get('/viewRecipe/recipe=:id', function(request, response) {
     // response.render('viewFood.ejs', {id: request.params.id});
-    console.log("button working " + request.params.id)
+    console.log("View Recipe:  " + request.params.id)
 
     db.query('SELECT * FROM recipes where id = ?', [request.params.id], function(error, result, fields) {
         if (error)
         {
-            console.log("Error");
+            console.log(error);
         }
         else if (result.length > 0)
         {
@@ -564,7 +649,11 @@ app.get('/editRecipe/recipe=:id', function(request, response) {
                     serves: result[0].serves,
                 };
                 console.log(recipe.name);
-                db.query('SELECT * FROM recipeIngredient where recipeid = ?', [request.params.id], function(error, results, fields) {
+
+                db.query(
+                'Select ri.id AS recipeingredientid, ri.ingredientid, ri.recipeid, f.name, f.amount AS foodAmount, f.measurement, f.calories, f.carbohydrates, f.fat, f.protein, f.saturates, f.sugars, f.salt, f.fiber, ri.amount AS recipeingredientAmount FROM food f JOIN recipeIngredient ri ON f.id = ri.ingredientid WHERE ri.recipeid = ?',
+                
+                [request.params.id], function(error, results, fields) {
                     if (error)
                     {
                         console.log(error);
@@ -572,25 +661,58 @@ app.get('/editRecipe/recipe=:id', function(request, response) {
                     else if (results.length > 0)
                     {
                         allRecipeIngredients = [];
-                        results.forEach(result => {
-                            recipeIngredient = {
-                                recipeIngredientid: result.id,
-                                recipeid: result.recipeid,
-                                recipename: result.ingredientName,
-                                ingredientid: result.ingredientid,
-                                amount: result.amount,
-                                measurement: result.measurement,
+                        let totalCalories = 0;
+                        let totalCarbohydrates = 0;
+                        let totalFat = 0;
+                        let totalProtein = 0;
+                        results.forEach( result => {
+
+                                //console.log("Food Result for:");
+                                //console.log(result);
+                                // console.log("Food Result is: " + foodresult.id);
+
+                                recipeIngredient = {
+                                    recipeIngredientid: result.recipeingredientid,
+                                    recipeid: result.recipeid,
+                                    ingredientName: result.name,
+                                    ingredientid: result.ingredientid,
+                                    amount: result.recipeingredientAmount,
+                                    measurement: result.measurement,
+                                    calories: calculateServing(result.foodAmount, result.recipeingredientAmount, result.calories),
+                                    carbohydrates: calculateServing(result.foodAmount, result.recipeingredientAmount, result.carbohydrates),
+                                    fat: calculateServing(result.foodAmount, result.recipeingredientAmount, result.fat),
+                                    protein: calculateServing(result.foodAmount, result.recipeingredientAmount, result.protein),
+                                    saturates: result.saturates,
+                                    sugars: result.sugars,
+                                    salt: result.salt,
+                                    fiber: result.fiber,
+                                }
+                                allRecipeIngredients.push(recipeIngredient);
+                                // Add the calculated calories to the current totalCalories for the whole meal
+                                totalCalories = parseInt(totalCalories) + parseInt(recipeIngredient.calories);
+                                totalCarbohydrates = parseFloat(totalCarbohydrates) + parseFloat(recipeIngredient.carbohydrates); 
+                                totalFat = parseFloat(totalFat) + parseFloat(recipeIngredient.fat); 
+                                totalProtein = parseFloat(totalProtein) + parseFloat(recipeIngredient.protein); 
+
+                               // console.log("Checking allRecipeIngredients after each forEach :" + allRecipeIngredients);
+                            });
+                            // After all the ingredients have been created and the total nutrition has been added, create an object of the toal for each nutrition in the meal
+                            let totalNutrition = {
+                                // Round each result to 1 Decmial Place
+                                calories: Math.round(totalCalories * 10) / 10 ,
+                                carbohydrates: Math.round(totalCarbohydrates * 10) / 10 ,
+                                fat: Math.round(totalFat * 10) / 10,
+                                protein: Math.round(totalProtein * 10) / 10,
                             }
-                            allRecipeIngredients.push(recipeIngredient);
-                        });
-                        console.log(allRecipeIngredients);
-                        response.render('editRecipe.ejs', {recipe, allRecipeIngredients});
+                            console.log(totalNutrition.calories);
+                        console.log("allRecipeIngredients: " + JSON.stringify(allRecipeIngredients));
+                        response.render('viewRecipe.ejs', {recipe, allRecipeIngredients, totalNutrition});
                     }
                     else {
                         console.log("No Ingredients Exist");
                         // empty any previous recipeList that might still exist from a previous recipe view that had some
                         allRecipeIngredients = [];
-                        response.render('editRecipe.ejs', {recipe});
+                        response.render('viewRecipe.ejs', {recipe});
                     }
                 });
                 
@@ -598,6 +720,7 @@ app.get('/editRecipe/recipe=:id', function(request, response) {
     });
 
 });
+
 
 app.post('/insertIngredient/recipe=:id&food=:foodid', function (request, response) {
     const id = request.params.id;
@@ -616,7 +739,7 @@ app.post('/insertIngredient/recipe=:id&food=:foodid', function (request, respons
         // If the food item is added
         console.log(`Food Item ${food} has been Added to recipe ${id}`);
         //redirect back to the edit recipe page for the currently selected recipe
-        response.redirect('/editRecipe/recipe='+id);
+        response.redirect('/viewRecipe/recipe='+id);
     });
 });
 
@@ -635,7 +758,7 @@ app.post('/editSelectedIngredient/recipe=:recipeid&recipeIngredientid=:recipeIng
         // If the food item is added
         console.log(`Ingredient ${recipeIngredientid} has been Edited`);
         //redirect back to the edit recipe page for the currently selected recipe
-        response.redirect('/editRecipe/recipe='+ recipeid);
+        response.redirect('/viewRecipe/recipe='+ recipeid);
     });
 });
 
@@ -649,7 +772,7 @@ app.get('/removeIngredient/recipe=:recipeid&recipeIngredient=:recipeIngredientid
         // If the food item is Removed
         console.log(`Food Item ${recipeIngredientid} has been Removed from the Recipe: ${recipeid}`);
         //redirect back to the edit recipe page for the currently selected recipe
-        response.redirect('/editRecipe/recipe=' + recipeid);
+        response.redirect('/viewRecipe/recipe=' + recipeid);
     });
 });
 
@@ -691,14 +814,16 @@ app.post('/createFoodItem', function(request, response, next) {
     let fiber = request.body.fiber;
     let addedByID = user.id;
     let currentDateTime = new Date();
-    let isPrivate = request.body.isPrivate;
-    if(isPrivate == null) {
-        isPrivate = 0
-    } else{
-        isPrivate = 1
-    }
+    //not allowing any user to create any public Food Items
+    let isPrivate = 1;
+
+    // if(isPrivate == null) {
+    //     isPrivate = 0
+    // } else{
+    //     isPrivate = 1
+    // }
+
     // Validate the entered food details above
-    
     /* 
         Too much bloating.
         After the first fail the code stops so you cant log all errors at once.
@@ -764,7 +889,82 @@ app.post('/createFoodItem', function(request, response, next) {
             console.log(`Food Item ${name} has been Created`);
             response.redirect('/food');
         });
-        
+    } 
+});
+
+//similar to /createFoodItem
+app.post('/editFood/food=:id', function(request, response, next) {
+    // Capture the input fields
+    //take the id from the url to know which food is being updated
+    let foodid = request.params.id;
+    let name = request.body.name;
+    let brand = request.body.brand;
+    let shop = request.body.shop;
+    let cost = request.body.pound * 100 + request.body.pence; //multiply the pound by 100 to convert it to pense
+    let amount = request.body.amount;
+    let measurement = request.body.measurement;
+    let servings = request.body.servings;
+    let calories = request.body.calories;
+    let carbohydrates = request.body.carbohydrates;
+    let fat = request.body.fat;
+    let protein = request.body.protein;
+    let saturates = request.body.saturates;
+    let sugars = request.body.sugars;
+    let salt = request.body.salt;
+    let fiber = request.body.fiber;
+
+    // Create an array to store all failed Validation messages (allow all messages to display at once)
+    let messages = [];
+    validateBlankField(name,'Name', messages);
+    validateBlankField(amount,'Amount', messages);
+    validateBlankField(measurement,'Measurement', messages);
+    validateBlankField(servings,'Servings', messages);
+    validateBlankField(calories,'Calories', messages);
+    validateBlankField(carbohydrates,'Carbohydrates', messages);
+    validateBlankField(fat,'Fat', messages);
+    validateBlankField(protein,'Protein', messages);
+
+    validateNumber(calories, 'Calories', messages)
+    validateNumber(carbohydrates,'Carbohydrates', messages);
+    validateNumber(fat,'Fat', messages);
+    validateNumber(protein,'Protein', messages);
+    validateNumber(request.body.pound,'Pound', messages);
+    validateNumber(request.body.pence,'Pence', messages);
+
+    if(messages.length > 0) {
+        console.log(messages.join('\n'))
+        return {message: messages.join('\n')};
     }
         
-      });
+    //if logged in
+    if(typeof user !== 'undefined'){
+        //check the user created the Food
+        console.log(user);
+        db.query('Select addedByID from food where id = ?', [foodid], function(error, result, fields) {
+            // If there is an issue with the query, output the error
+            //check the addedByID is being pulled
+            console.log(result);
+            if (error) throw error;
+            if(result[0].addedByID == user.id){
+            // If the Food was created by the user
+            db.query('UPDATE food SET name = ?, brand = ?, shop = ?, cost = ?, amount = ?, measurement = ?, servings = ?, ' + //separate to next like to make it easier to read
+            'calories = ?, carbohydrates = ?, fat = ?, protein = ?, saturates = ?, sugars = ?, salt = ?, fiber = ? WHERE id = ?',
+            [name, brand, shop, cost, amount, measurement, servings, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, foodid],
+            function(error, results, fields) {
+            //     // If there is an issue with the query, output the error
+                if (error) throw error;
+            //     // If the food item is added
+                console.log(`Food Item ${name} has been Edited`); 
+                //console.log(result[0].addedByID + " " + user.id);
+            });
+            } else {
+                console.log("You can only edit Food that you created");
+                //console.log(result[0].addedByID + " " + user.id);
+            }
+        });   
+    } else {
+        console.log("You must be logged in to edit Food");
+    }
+
+   response.redirect('/food');
+});

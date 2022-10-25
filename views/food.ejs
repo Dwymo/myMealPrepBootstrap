@@ -51,12 +51,12 @@
             <div class="text-center mt-5">
             </div>
             <div class="food">
-                <table class="table mt-5" id="food-list">
+                <table class="table table-light table-hover mt-5" id="food-list">
                     <thead><h1 class="text-center">Food Page</h1></thead>
                     <tbody>
                         <!-- Create a row for each food Item -->
                         <% allFood.forEach((food) => { %>
-                            <tr> 
+                            <tr>
                                 <td><%= food.name %></td>
                                 <td>Per <%= food.measurement%> - </td>
                                 <td>Cals: <%= food.calories %> </td>
@@ -65,17 +65,18 @@
                                 <td>Protein(g): <%= food.protein %></td>
                                 <!-- Passed through recipeID as id -->
                                 <% if (typeof recipeid !== 'undefined') { %>
-                                    <td>
-                                        <!--  Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
-                                        <a class="btnAddIngredient" href="/selectIngredient/recipe=<%= recipeid %>&food=<%= food.id %>" > View Ingredient: <%= food.name %>
-                                    </td>
+                                <!-- Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
+                                <td>
+                                    <a class="btn btn-secondary" href="/selectIngredient/recipe=<%= recipeid %>&food=<%= food.id %>" > View/Edit</a>
+                                </td>
                                 <% } else { %>
-                                    <td>
-                                        <!--  Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
-                                        <a class="btnAddIngredient" href="/viewFood/food=<%= food.id %>" > View Food: <%= food.name %>
-                                <% } %>
+                                <!--  Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
+                                <td>
+                                    <a class="btn btn-secondary" href="/viewFood/food=<%= food.id %>" > View/Edit</a>
+                                    </td>
+                                    <% } %>
                             </tr>
-                        <% }); %>
+                            <% }); %>
                     </tbody>
                 </table>
             </div>

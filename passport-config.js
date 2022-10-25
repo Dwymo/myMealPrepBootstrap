@@ -54,12 +54,11 @@ function initialize(passport){
     passport.use(new LocalStrategy(verifyUser));    
     
     passport.serializeUser((user, done) => {
-        console.log(`serialize ${user}`);
+        console.log(`Serialize: ${user.username}`);
         done(null,user.id)
     });
     
     passport.deserializeUser(function(userId, done){
-        console.log('deserializedUser ' + userId);
         db.query('SELECT * FROM users WHERE id = ?', [userId], function(error, results) {
             done(null, results[0]);
             //create a user objest to be used throughout
@@ -68,6 +67,7 @@ function initialize(passport){
                 username: results[0].username,
                 password: results[0].password
             };
+            console.log('Deserialized: ' + user.username);
         });
     });
 }
