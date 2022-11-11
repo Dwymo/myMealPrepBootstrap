@@ -67,14 +67,18 @@
                                 <% if (typeof recipeid !== 'undefined') { %>
                                 <!-- Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
                                 <td>
-                                    <a class="btn btn-secondary" href="/selectIngredient/recipe=<%= recipeid %>&food=<%= food.id %>" > View/Edit</a>
+                                    <a class="btn btn-secondary" href="/selectIngredient/recipe=<%= recipeid %>&food=<%= food.id %>" > View</a>
                                 </td>
                                 <% } else { %>
                                 <!--  Created a href to send through the id of the selected food item to the url to use in the SelecetedFood page  -->
                                 <td>
-                                    <a class="btn btn-secondary" href="/viewFood/food=<%= food.id %>" > View/Edit</a>
-                                    </td>
+                                    <% if (food.isPrivate == '0') { %>
+                                    <a class="btn btn-dark" href="/viewFood/food=<%= food.id %>" > View</a>
+                                    <% } else { %>
+                                    <a class="btn btn-secondary" href="/viewFood/food=<%= food.id %>" > View</a>
                                     <% } %>
+                                </td>
+                                <% } %>
                             </tr>
                             <% }); %>
                     </tbody>

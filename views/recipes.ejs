@@ -61,8 +61,14 @@
                             <td><%= recipe.type %></td>
                             <td>Serves: <%= recipe.serves %></td>
                             <td>
-                                <!--  Created a href to send through the id of the selected Recipe to the url to use in the SelecetedFood page  -->
-                                <a class="btn btn-secondary" href="/viewRecipe/recipe=<%= recipe.id %>" > view/Edit</a>
+                                <% if (recipe.isPrivate == '0') { %>
+                                    <!--  Created a href to send through the id of the selected Recipe to the url to use in the SelecetedFood page  -->
+                                    <a class="btn btn-dark" href="/viewRecipe/recipe=<%= recipe.id %>" >View</a>
+                                    <% } else { %>
+                                        <a class="btn btn-secondary" href="/viewRecipe/recipe=<%= recipe.id %>" >View</a>
+                                    <% } %>
+                                
+                                
                             </td>
                         </tr>
                     <% }); %>
