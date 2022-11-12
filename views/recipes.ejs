@@ -66,6 +66,7 @@
                                     <a class="btn btn-dark" href="/viewRecipe/recipe=<%= recipe.id %>" >View</a>
                                     <% } else { %>
                                         <a class="btn btn-secondary" href="/viewRecipe/recipe=<%= recipe.id %>" >View</a>
+                                        <a class="btn btn-danger" href="/removeRecipe/food=<%= recipe.id %>" onclick="return confirm('Are you sure, you want to remove this Food?')">Remove</a></li>
                                     <% } %>
                                 
                                 

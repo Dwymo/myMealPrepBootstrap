@@ -24,7 +24,7 @@
   "version": "1.0.0",
   "main": "scripts.js",
   "scripts": {
-    "devStart": "nodemon server.js"
+    "devStart": "nodemon app.js"
   },
   "repository": {
     "type": "git",

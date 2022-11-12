@@ -21,10 +21,14 @@
 	run this file to connect to DB then go to: http://localhost:3000, on web browser to view the code. 
 */
 
-//not sure how this works at present
-if (process.env.NODE_ENV !== 'production'){
+// Not sure how this works at present
+// Keys are not defined when hosting to dreamhost, removing the if not in production allows it to work.
+// Unsure of the full understanding of these right now but requiring the file be default allows it to work.
+// Further investigation on this is stil required
+
+//if (process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
-}
+//}
 
 // Accessing both the Database and the Passport Configuration so need to require both files
 const db = require('./db');
@@ -620,34 +624,33 @@ app.post('/createRecipe', function(request,response, next) {
     // Create an array to store all failed field messages (allow all messages to display at once)
     let messages = [];
     validateBlankField(name,'Name', messages);
-    validateBlankField(description,'Description', messages);
 	
     if(messages.length > 0) {
-        console.log(messages.join('\n'))
-        return {message: messages.join('\n')};
+        request.flash('error', messages.join('</br>'));
+        response.redirect('/createRecipe');
     }
-
-    if(user){
-        db.query('INSERT INTO recipes (name, description, type, serves, addedByID, isPrivate)'
-        + 'VALUES (?, ?, ?, ?, ?, ?)',
-        [name, description, type, serves, addedByID, isPrivate],
-        function(error, results, fields) {
-            // If there is an issue with the query, output the error
-            if (error) throw error;
-            // If the food item is added
-            console.log(`recipe: ${name} has been Created`);
-       
-            db.query('SELECT * FROM recipes where name = ?', [name], function(error, results, fields){
+    else {
+        if(user){
+            db.query('INSERT INTO recipes (name, description, type, serves, addedByID, isPrivate)'
+            + 'VALUES (?, ?, ?, ?, ?, ?)',
+            [name, description, type, serves, addedByID, isPrivate],
+            function(error, results, fields) {
+                // If there is an issue with the query, output the error
                 if (error) throw error;
-                const id = results[0].id;
-                console.log(results[0]);
-                response.redirect('/viewRecipe/recipe='+id);
-            });
-            console.log('Test end of creating recipe')
-        });
+                // If the food item is added
+                console.log(`recipe: ${name} has been Created`);
         
-    }
-    
+                db.query('SELECT * FROM recipes where name = ?', [name], function(error, results, fields){
+                    if (error) throw error;
+                    const id = results[0].id;
+                    console.log(results[0]);
+                    response.redirect('/viewRecipe/recipe='+id);
+                });
+                console.log('Test end of creating recipe')
+            });
+            
+        }
+    }    
 });
 
 
@@ -895,6 +898,56 @@ app.get('/removeUser', function(request, response) {
         });
         // Redirect the user to the homepage
         response.redirect('/');
+});
+
+app.get('/removeFood/food=:foodid', function(request, response) {
+    // Store userid and username for after logout
+    let userid = user.id;
+    let foodid = request.params.foodid
+    db.query('Select addedByID FROM food where id = ?', [foodid], function(error, results, fields) {
+        if(results[0].addedByID == userid){
+            // Delete the food from the food table
+            db.query('DELETE FROM food where id = ?', [foodid], function(error, results, fields) {
+            // If there is an issue with the query, output the error
+            if (error) throw error;
+            });
+            // Delete all food/ingredients from the recipeIngredients table
+            db.query('DELETE FROM recipeIngredient where ingredientid = ?', [foodid], function(error, results, fields) {
+                // If there is an issue with the query, output the error
+                if (error) throw error;
+                });
+                response.redirect('/food');
+        }
+        else {
+            request.flash('removeerror', '<B>Unable to remove food you did not create</B>');
+            response.redirect('/food');
+        }
+    });
+});
+
+app.get('/removeRecipe/food=:recipeid', function(request, response) {
+    // Store userid and username for after logout
+    let userid = user.id;
+    let recipeid = request.params.recipeid
+    db.query('Select addedByID FROM recipes where id = ?', [recipeid], function(error, results, fields) {
+        if(results[0].addedByID == userid){
+            // Delete the food from the food table
+            db.query('DELETE FROM recipes where id = ?', [recipeid], function(error, results, fields) {
+            // If there is an issue with the query, output the error
+            if (error) throw error;
+            });
+            // Delete all food/ingredients from the recipeIngredients table
+            db.query('DELETE FROM recipeIngredient where recipeid = ?', [recipeid], function(error, results, fields) {
+                // If there is an issue with the query, output the error
+                if (error) throw error;
+                });
+                response.redirect('/recipes');
+        }
+        else {
+            request.flash('removeerror', '<B>Unable to remove food you did not create</B>');
+            response.redirect('/food');
+        }
+    });
 });
 
 

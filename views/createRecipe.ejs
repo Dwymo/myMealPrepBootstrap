@@ -50,6 +50,9 @@
         <div class="container mt-5 col-6">
             <div class="newRecipe">
                 <h1 class="text-center">Create Recipe</h1>
+                <% if (messages.error) { %>
+                    <%- messages.error %>
+                    <% } %>
                 <!-- on submit(pressing createIngredient), load /createIngredient and post the ingredient data -->
                 <form action="/createRecipe" method="post">
                     <!-- row for: Recipe Name/Type and Serving Size - Each input will be grouped seperatly -->

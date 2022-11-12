@@ -53,6 +53,9 @@
             <div class="food">
                 <table class="table table-light table-hover mt-5" id="food-list">
                     <thead><h1 class="text-center">Food Page</h1></thead>
+                    <% if (messages.removeerror) { %>
+                        <%- messages.removeerror %>
+                        <% } %>
                     <tbody>
                         <!-- Create a row for each food Item -->
                         <% allFood.forEach((food) => { %>
@@ -76,6 +79,7 @@
                                     <a class="btn btn-dark" href="/viewFood/food=<%= food.id %>" > View</a>
                                     <% } else { %>
                                     <a class="btn btn-secondary" href="/viewFood/food=<%= food.id %>" > View</a>
+                                    <a class="btn btn-danger" href="/removeFood/food=<%= food.id %>" onclick="return confirm('Are you sure, you want to remove this Food?')">Remove</a></li>
                                     <% } %>
                                 </td>
                                 <% } %>
