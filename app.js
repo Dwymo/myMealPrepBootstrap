@@ -14,9 +14,12 @@
 	https://jodiss-tri.medium.com/build-a-login-system-in-node-js-using-passport-js-and-mysql-52667cf3cc40
     https://bootcamp.rocketacademy.co/3-backend-applications/3.2-ejs/3.2.1-ejs-loops
     https://www.youtube.com/watch?v=-RCnNyD0L-s
+    https://www.passportjs.org/tutorials/password/
     https://stackoverflow.com/questions/58849990/i-am-trying-to-display-flash-error-message-in-express-js-but-req-flasherror
     https://qawithexperts.com/questions/124/how-to-show-confirm-box-when-clicking-link-a-href-tag - used for the onclick for deleting Account in profile
-
+    https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
+    https://stackoverflow.com/questions/46807385/passport-js-serializeuser-deserializeuser
+    
 	Additional Information:
 	run this file to connect to DB then go to: http://localhost:3000, on web browser to view the code. 
 */
@@ -27,7 +30,7 @@
 // Further investigation on this is stil required
 
 //if (process.env.NODE_ENV !== 'production'){
-    require('dotenv').config()
+    require('dotenv').config();
 //}
 
 // Accessing both the Database and the Passport Configuration so need to require both files
@@ -75,6 +78,7 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
+
 // Use the public folder to enable the Bootstrap CSS file
 app.use(express.static('public'));
 // Use the views folder to allow navigation to these files
@@ -86,7 +90,7 @@ app.set('view engine', 'ejs');
 app.listen(3000);
 
 
-
+ // If the user is not authenticated but is trying to access a page that required you to be logged into, redirect them to the login page
 function isAuth(request, response, next)
 {
     if(request.isAuthenticated())
@@ -98,6 +102,7 @@ function isAuth(request, response, next)
     }
 }
 
+ // If the user is authenticated but is trying to access a page they shouldnt be becuase of this (such as the register/login page), redirect them to their profile page
 function isNotAuth(request, response, next)
 {
     if(request.isAuthenticated())
@@ -109,23 +114,26 @@ function isNotAuth(request, response, next)
     }
 }4
 
-// function userExists(request, response, next)
-// {
-//     db.query('SELECT * FROM users WHERE username = ?', [request.body.username], function(error, results, fields) {
-//         if (error)
-//         {
-//             console.log("Error");
-//         }
-//         else if (results.length > 0)
-//         {
-//             response.redirect('/userAlreadyExists')
-//         }
-//         else
-//         {
-//             next()
-//         }
-//     });
-// }
+// Function to check if an account already exists with the entered Username
+function userExists(request, response, next)
+{
+    db.query('SELECT * FROM users WHERE username = ?', [request.body.username], function(error, results, fields) {
+        if (error)
+        {
+            console.log("Error");
+        }
+        else if (results.length > 0)
+        {
+            request.flash('error', '<B>User Already Exists</B>');
+            response.redirect('/register');
+        }
+        else
+        {
+            next()
+        }
+    });
+}
+
 
 
 //Create an array of All the food that is either: public or created by the user.
@@ -138,7 +146,7 @@ function renderFood(request, response, next) {
         User NOT logged-in: set to blank to still be defined but no results will be found
     */
     if(request.isAuthenticated()) {
-        id = user.id;
+        id = request.user.id;
     } else {
         id = '';
     }
@@ -167,7 +175,6 @@ function renderFood(request, response, next) {
     });
 }
 
-
 //Create an array of All the USERS food
 function renderUsersFood(request, response, next) {
     /* 
@@ -178,7 +185,7 @@ function renderUsersFood(request, response, next) {
         User NOT logged-in: set to blank to still be defined but no results will be found
     */
     if(request.isAuthenticated()) {
-        id = user.id;
+        id = request.user.id;
     } else {
         id = '';
     }
@@ -207,8 +214,6 @@ function renderUsersFood(request, response, next) {
     });
 }
 
-
-
 //Create an array of All the Recipes that are either: public or created by the user.
 function renderRecipes (request, response, next){
         /* 
@@ -219,7 +224,7 @@ function renderRecipes (request, response, next){
         User NOT logged-in: set to blank to still be defined but no results will be found
     */
         if(request.isAuthenticated()) {
-            id = user.id;
+            id = request.user.id;
         } else {
             id = '';
         }
@@ -244,6 +249,7 @@ function renderRecipes (request, response, next){
             next();
     });
 }
+
 
 
 /*
@@ -281,120 +287,104 @@ function calculateServing(perServingLogged, actualServingRequired, nutrition){
     return Math.round(result * 10) / 10;
 }
 
-
-
-app.post('/createAccount', async function(request, response) {
+// Creating account, First run userExists function, if the user does not exist then continue through the createAccount
+app.post('/createAccount',userExists,  async function(request, response) {
 	// Capture the input fields
 	let username = request.body.username;
 	let password = request.body.password;
 	let passwordConfirm = request.body.passwordConfirm;
+    let currentDateTime = new Date();
 	//hash/bcrypt the password, run through the process 10 times and await for all to be completed, then store in a new variable
 	const hashedPassword = await bcrypt.hash(password, 10)
 	// Ensure the input fields exists and are not empty
 	if (username && password && passwordConfirm) {
 		// If the Password matches the confirmed password
 		if(password == passwordConfirm){
-			// Execute SQL query to check if an account already existsbased on the specified username and password
-			db.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], function(error, results, fields) {
-				// If there is an issue with the query, output the error
-				if (error) throw error;
-				// If the account exists
-				if (results.length > 0) {
-					// Inform that Account already exists
-					response.send('Account already exists!');	
-				} else {
-					// Execute SQL query to Create Account for User using entered details
-					db.query('INSERT INTO users (username, password, email) VALUES (?, ?, ?)', [username, hashedPassword, username], function(error, results, fields) {
-						// If there is an issue with the query, output the error
-						if (error) throw error;
-						// If the account gets created
-						console.log("Account Created");
-						response.redirect('/login');
-					});
-				}
-			});
-		} else {
+            // Create Account
+            db.query('INSERT INTO users (username, password, email, addedDateTime) VALUES (?, ?, ?, ?)', [username, hashedPassword, username, currentDateTime], function(error, results, fields) {
+                // If there is an issue with the query, output the error
+                if (error) throw error;
+                // If the account gets created
+                console.log("Account Created");
+                response.redirect('/login');
+            });
+		} // If The password and Confirmed Password do not match, inform the user and don't create the account
+        else {
 			response.send('Password does not match the confirmed password!');
 			response.end();
-		}
-	} else {
+        }
+	}
+    else {
+        // If ANY of the fields are blank, inform the user and don't create the account
 		response.send('Please enter Username, Password and confirm the Password!');
 		response.end();
 	}
 });
 
-
-
+// The Homepage can be accessed by directing to '/'
 app.get('/', function(request, response) {
-	// Render the page index.html
-	response.render('index.ejs', {error: false});
+	response.render('index.ejs', {user:request.user});
 });
 
+// User should only be able to try to log in if they are NOT already logged in
 app.get('/login', isNotAuth, function(request,response) {
 	response.render('login.ejs');
 });
 
-//app.post('/login',passport.authenticate('local',{failureRedirect:'/login-failure',successRedirect:'/profile'}));
-//app.post('/login', passport.authenticate('', { successRedirect: '/profile', failureRedirect: '/login' }));
-
+// When posting the login details, run the authentication process, go to profile if succesfull or back to login page with an error if failed.
 app.post('/login', passport.authenticate('local',{
     successRedirect:'/profile',
     failureRedirect:'/login',
     failureFlash: true
 }));
 
-app.get('/login-failure', (request, response, next) => {
-    response.send('you entered the wrong password')
-});
-
-app.get('/register', function(request,response) {
+// User should only be able to register if they are NOT already logged in
+app.get('/register', isNotAuth, function(request,response) {
 	response.render('register.ejs');
 });
 
-app.get('/createFood', function(request,response) {
-	response.render('createFood.ejs');
+// User should only be able to create Food if they are logged in
+app.get('/createFood', isAuth, function(request,response) {
+	response.render('createFood.ejs', {user:request.user});
 });
 
-
-/* 
-Food-Ingredient Page will be accessed for two different requests:
-1. Food - User is wanting to view an existing foods content
-2. Ingredient - User is selecting an Ingredient from the list of created food
+/* Food/Ingredient Page will be accessable two different ways:
+1. Food - User is wanting to view the existing Food items
+2. Ingredient - User is selecting an Ingredient from the list of their Food to add to their Recipe
 */
 
+// renderFood will load all the users created Food items (If user is logges in) and all the public Food items that are available to view
 app.get('/food', renderFood, function(request,response) {
     console.log('Viewing all Food in System')
-    response.render('food.ejs');
+    response.render('food.ejs', {user: request.user});
 });
 
-
+// Since user is selecting already created Food items to add to their Recipe and are unable to use public Food, they will only be able to render Food that they have created 
 app.get('/food/recipe=:id', renderUsersFood, function(request,response) {
-    console.log('Selecting Ingredient for Recipe id: '+request.params.id);
     const recipeid = request.params.id;
-
+    console.log('Selecting Ingredient for Recipe id: ' + recipeid); // Ensure the recipeID has successfully pulled through
     // Check if the recipe being edited was created by the user
     db.query('SELECT addedByID FROM recipes where id = ?', [recipeid], function(error, result, fields){
-        if(result[0].addedByID == user.id) {
-            response.render('food.ejs', {recipeid: recipeid});
+        // If it is then allow the user to select a Food item to add to the Recipe
+        if(result[0].addedByID == request.user.id) {
+            response.render('food.ejs', {recipeid: recipeid, user: request.user});
         } else {
+            // If not, Redirect back to the recipe page and inform the user that they cannot add Food to a Recipe they did not create
             request.flash('adderror', '<B>Unable to add Ingredients to a Recipe you did not create</B>');
-            response.redirect('/viewRecipe/recipe=' + recipeid);
+            response.redirect('/viewRecipe/recipe=' + recipeid, {user: request.user});
             console.log("Unable to add Ingredients");
-
-            // request.flash('editerror', '<B>Unable to edit Ingredients from a Recipe you did not create</B>');
-            // response.redirect('/viewRecipe/recipe=' + recipeid);
         }
     });
 });
 
-/* 
-View Food Page will be required for three different reasons:
-1. viewFood - User is wanting to open a food item that has been created and view it's content
-2. selectIngredient - User is viewing a selected Ingredient to add to the current Recipe
-3. editIngredient - User is adjusting an Ingredient from a recipe
+/* viewFood Page will be required for three different reasons:
+1. viewFood - User is viewing a public Food or one that they created
+2. selectIngredient - User is viewing a selected Ingredient they want to add to the selected Recipe
+3. editIngredient - User is editing a selected Ingredient from a selected recipe
 */
+
+// Viewing a Food item from the full list of vaiable Foods
 app.get('/viewFood/food=:id', function(request, response) {
- 
     db.query('SELECT * FROM food where id = ?', [request.params.id], function(error, result, fields) {
         if (error)
         {
@@ -423,89 +413,15 @@ app.get('/viewFood/food=:id', function(request, response) {
                 addedDateTime: result[0].addedDateTime,
                 isPrivate: result[0].isPrivate
             };
-            console.log("Viewing Food " + food.name)
-            response.render('viewFood.ejs', {food});
+            console.log("Viewing Food " + food.name); // Ensuring the Food Object has been created and pulled through correctly and that the user is Viewing a Food
+            response.render('viewFood.ejs', {food, user:request.user});
         }
     });
 });
 
+// Viewing a Food the user created to possibily select it as an ingredient
 app.get('/selectIngredient/recipe=:recipeid&food=:foodid', function(request, response) {
-
     db.query('SELECT * FROM food where id = ?', [request.params.foodid], function(error, result, fields) {
-        if (error)
-        {
-            console.log("Error");
-        }
-        else if (result.length > 0)
-        {
-            const food = {
-                    id: result[0].id,
-                    name: result[0].name,
-                    brand: result[0].brand,
-                    shop: result[0].shop,
-                    cost: result[0].cost,
-                    amount: result[0].amount,
-                    measurement: result[0].measurement,
-                    servings: result[0].servings,
-                    calories: result[0].calories,
-                    carbohydrates: result[0].carbohydrates,
-                    fat: result[0].fat,
-                    protein: result[0].protein,
-                    saturates: result[0].saturates,
-                    sugars: result[0].sugars,
-                    salt: result[0].salt,
-                    fiber: result[0].fiber,
-                    addedByID: result[0].addedByID,
-                    addedDateTime: result[0].addedDateTime,
-                    isPrivate: result[0].isPrivate
-                };
-                console.log(`Viewing Ingredient: ${food.name} for Recipe: ${request.params.recipeid}`)
-                response.render('viewFood.ejs', {food, recipeid: request.params.recipeid});
-
-        }
-    });
-});
-
-app.get('/editIngredient/recipe=:recipeid&food=:food&idingredient=:ingredientid', function(request, response) {
-    db.query('SELECT * FROM food where id = ?', [request.params.foodid], function(error, result, fields) {
-        if (error)
-        {
-            console.log("Error");
-        }
-        else if (result.length > 0)
-        {
-            const food = {
-                    id: result[0].id,
-                    name: result[0].name,
-                    brand: result[0].brand,
-                    shop: result[0].shop,
-                    cost: result[0].cost,
-                    amount: result[0].amount,
-                    measurement: result[0].measurement,
-                    servings: result[0].servings,
-                    calories: result[0].calories,
-                    carbohydrates: result[0].carbohydrates,
-                    fat: result[0].fat,
-                    protein: result[0].protein,
-                    saturates: result[0].saturates,
-                    sugars: result[0].sugars,
-                    salt: result[0].salt,
-                    fiber: result[0].fiber,
-                    addedByID: result[0].addedByID,
-                    addedDateTime: result[0].addedDateTime,
-                    isPrivate: result[0].isPrivate
-                };
-                console.log(`Editing Ingredient: ${food.name} for Recipe: ${request.params.recipeid}`)
-                response.render('viewFood.ejs', {food, recipeid: request.params.recipeid});
-
-        }
-    });
-});
-
-app.get('/addIngredient/recipe=:recipeid&food=:foodid', function(request, response) {
-    // response.render('viewFood.ejs', {id: request.params.id});
-    console.log("selecting New Ingredient for Recipe: " + request.params.recipeid)
-    db.query('SELECT * FROM food where id = ?', [request.params.id], function(error, result, fields) {
         if (error)
         {
             console.log("Error");
@@ -533,129 +449,115 @@ app.get('/addIngredient/recipe=:recipeid&food=:foodid', function(request, respon
                 addedDateTime: result[0].addedDateTime,
                 isPrivate: result[0].isPrivate
             };
-            console.log(food.name);
-            response.render('viewFood.ejs', {food});
+            console.log(`Viewing Ingredient: ${food.name} for Recipe: ${request.params.recipeid}`) // Ensuring the Food object has been created correctly, the Food and Recipe have pulled through correctly and that the user is Viewing an Ingredient
+            response.render('viewFood.ejs', {food, recipeid: request.params.recipeid, user: request.user});
         }
     });
 });
 
+// Viewing/Editing an already Created Ingredient in a Recipe
 app.get('/viewRecipeIngredient/recipe=:recipeid&recipeIngredient=:recipeIngredientid', function(request, response) {
-    // response.render('viewFood.ejs', {id: request.params.id});
-    console.log("selecting New Ingredient for Recipe: " + request.params.recipeid)
     const recipeid = request.params.recipeid;
     const recipeIngredientid = request.params.recipeIngredientid;
-
-    //First check if the recipe was created by the user otherwise dont allow them to edit the ingredient
-
-        // Check if the recipe being edited was created by the user
-        db.query('SELECT addedByID FROM recipes where id = ?', [recipeid], function(error, result, fields){
-            if(result[0].addedByID == user.id) {        
-                db.query('SELECT * FROM recipeIngredient where id = ?', [recipeIngredientid], function(error, result, fields) {
-                    if (error)
-                    {
-                        console.log("Error");
-                    }
-                    else if (result.length > 0)
-                    {
-                        const ingredientid = result[0].ingredientid;
-                        const selectedIngredientAmount = result[0].amount;
-                        const selectedIngredientMeasurement = result[0].measurement;
-                        console.log("Selected ingredient id is: " + ingredientid);
-                        db.query('SELECT * FROM food where id = ?', [ingredientid], function(error, result, fields) {
-                            if (error)
-                            {
-                                console.log("Error");
-                            }
-                            else if (result.length > 0)
-                            {
-                                const food = {
-                                    id: result[0].id,
-                                    name: result[0].name,
-                                    brand: result[0].brand,
-                                    shop: result[0].shop,
-                                    cost: result[0].cost,
-                                    amount: selectedIngredientAmount,
-                                    measurement: selectedIngredientMeasurement,
-                                    servings: result[0].servings,
-                                    calories: result[0].calories,
-                                    carbohydrates: result[0].carbohydrates,
-                                    fat: result[0].fat,
-                                    protein: result[0].protein,
-                                    saturates: result[0].saturates,
-                                    sugars: result[0].sugars,
-                                    salt: result[0].salt,
-                                    fiber: result[0].fiber,
-                                    addedByID: result[0].addedByID,
-                                    addedDateTime: result[0].addedDateTime,
-                                    isPrivate: result[0].isPrivate
-                                };
-                            response.render('viewFood.ejs', {food, recipeid: recipeid, recipeingredientid: recipeIngredientid});
-                            }
-                        });
-                    }
-                });
-            }
-            else {
-                request.flash('editerror', '<B>Unable to edit Ingredients from a Recipe you did not create</B>');
-                response.redirect('/viewRecipe/recipe=' + recipeid);
-            }
-
-        });
+    // Check if the recipe being edited was created by the user
+    db.query('SELECT addedByID FROM recipes where id = ?', [recipeid], function(error, result, fields){
+        if(result[0].addedByID == request.user.id) {        
+            // If it was, locate the Amount and Measuermenet from the recipeIngredient page
+            db.query('SELECT * FROM recipeIngredient where id = ?', [recipeIngredientid], function(error, result, fields) {
+                if (error)
+                {
+                    console.log("Error");
+                }
+                else if (result.length > 0)
+                {
+                    const ingredientid = result[0].ingredientid;
+                    const selectedIngredientAmount = result[0].amount;
+                    const selectedIngredientMeasurement = result[0].measurement;
+                    // Next, Grab the rest of information from the main Food page
+                    db.query('SELECT * FROM food where id = ?', [ingredientid], function(error, result, fields) {
+                        if (error)
+                        {
+                            console.log("Error");
+                        }
+                        else if (result.length > 0)
+                        {
+                            // Create an object of the Food to view but change the amount/measurement to the results from the recipeIngredient
+                            const food = {
+                                id: result[0].id,
+                                name: result[0].name,
+                                brand: result[0].brand,
+                                shop: result[0].shop,
+                                cost: result[0].cost,
+                                amount: selectedIngredientAmount,
+                                measurement: selectedIngredientMeasurement,
+                                servings: result[0].servings,
+                                calories: result[0].calories,
+                                carbohydrates: result[0].carbohydrates,
+                                fat: result[0].fat,
+                                protein: result[0].protein,
+                                saturates: result[0].saturates,
+                                sugars: result[0].sugars,
+                                salt: result[0].salt,
+                                fiber: result[0].fiber,
+                                addedByID: result[0].addedByID,
+                                addedDateTime: result[0].addedDateTime,
+                                isPrivate: result[0].isPrivate
+                            };
+                        // Render the Food Item from the above created object
+                        response.render('viewFood.ejs', {food, recipeid: recipeid, recipeingredientid: recipeIngredientid, user: request.user});
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            // If user did NOT create the Recipe, redirect them back to the recipe page and inform them they cannot edit Ingredients from a Recipe they did not create
+            request.flash('editerror', '<B>Unable to edit Ingredients from a Recipe you did not create</B>');
+            response.redirect('/viewRecipe/recipe=' + recipeid, {user:request.user});
+        }
+    });
 
         
 
 
 });
 
+// Viewing the Create Recipe Page
 app.get('/createRecipe', function(request,response) {
-	response.render('createRecipe.ejs');
+	response.render('createRecipe.ejs', {user: request.user});
 });
 
-app.post('/createRecipe', function(request,response, next) {
+// User should only be able to create a Recipe if they are logged in
+app.post('/createRecipe', isAuth, function(request,response, next) {
     // Capture the input fields
     let name = request.body.name;
     let description = request.body.description;
     let type = request.body.type;
     let serves = request.body.serves;
-    let addedByID = user.id;
+    let addedByID = request.user.id;
+    let currentDateTime = new Date();
     let isPrivate = 1; //All created Recipe's should always be set to private
-
-
     // Create an array to store all failed field messages (allow all messages to display at once)
     let messages = [];
     validateBlankField(name,'Name', messages);
-	
+    // Display the error messages if there are any
     if(messages.length > 0) {
         request.flash('error', messages.join('</br>'));
         response.redirect('/createRecipe');
-    }
+    } // If there are no issues, create the Recipe
     else {
-        if(user){
-            db.query('INSERT INTO recipes (name, description, type, serves, addedByID, isPrivate)'
-            + 'VALUES (?, ?, ?, ?, ?, ?)',
-            [name, description, type, serves, addedByID, isPrivate],
-            function(error, results, fields) {
-                // If there is an issue with the query, output the error
-                if (error) throw error;
-                // If the food item is added
-                console.log(`recipe: ${name} has been Created`);
-        
-                db.query('SELECT * FROM recipes where name = ?', [name], function(error, results, fields){
-                    if (error) throw error;
-                    const id = results[0].id;
-                    console.log(results[0]);
-                    response.redirect('/viewRecipe/recipe='+id);
-                });
-                console.log('Test end of creating recipe')
-            });
-            
-        }
+        db.query('INSERT INTO recipes (name, description, type, serves, addedByID, addedDateTime, isPrivate) VALUES (?, ?, ?, ?, ?, ?, ?)', [name, description, type, serves, addedByID, currentDateTime, isPrivate], function(error, results, fields) {
+            // If there is an issue with the query, output the error
+            if (error) throw error;
+            // If the Recipe has been created, redirect the user back to the list of recipe's so they can either create more recipes or open the newly created recipe
+            console.log(`recipe: ${name} has been Created`);
+            response.redirect('/recipes');
+        });
     }    
 });
 
-
+// View Selected Recipe
 app.get('/viewRecipe/recipe=:id', function(request, response) {
-    console.log("View Recipe:  " + request.params.id) //checking the Recipeid has being pulled through
     db.query('SELECT * FROM recipes where id = ?', [request.params.id], function(error, result, fields) {
         if (error)
         {
@@ -664,15 +566,15 @@ app.get('/viewRecipe/recipe=:id', function(request, response) {
         }
         else if (result.length > 0)
         {
-            //Create an object of the Recipe
+            //Create an object of the Recipe Details
             const recipe = {
-                    id: result[0].id,
-                    name: result[0].name,
-                    description: result[0].description,
-                    type: result[0].type,
-                    serves: result[0].serves,
-                    isPrivate: result[0].isPrivate,
-                };
+                id: result[0].id,
+                name: result[0].name,
+                description: result[0].description,
+                type: result[0].type,
+                serves: result[0].serves,
+                isPrivate: result[0].isPrivate,
+            };
             console.log(`Recipe Name: ${recipe.name}`); //checking the object was created by selecting the Recipe Name
             db.query('Select ri.id AS recipeingredientid, ri.ingredientid, ri.recipeid, f.name, f.amount AS foodAmount, f.measurement, f.calories, f.carbohydrates, f.fat, f.protein, f.saturates, f.sugars, f.salt, f.fiber, ri.amount AS recipeingredientAmount FROM food f JOIN recipeIngredient ri ON f.id = ri.ingredientid WHERE ri.recipeid = ?', [request.params.id], function(error, results, fields) {
                 if (error)
@@ -680,14 +582,20 @@ app.get('/viewRecipe/recipe=:id', function(request, response) {
                     console.log(error);
                     return; //Stop running the function if there is an error
                 }
-                else if (results.length > 0)
+                else if (results.length > 0) // If a recipe and the Ingredients were found
                 {
+                    // Create an array of all the recipeIngredients
                     allRecipeIngredients = [];
                     // Set the total of each nutrition to 0 to declare if non existant or set back to 0 if already changed.
                     let totalCalories = 0;
                     let totalCarbohydrates = 0;
                     let totalFat = 0;
                     let totalProtein = 0;
+                    let totalSaturates = 0;
+                    let totalSugars = 0;
+                    let totalSalt = 0;
+                    let totalFiber = 0;
+
                     results.forEach( result => {
                         recipeIngredient = {
                             recipeIngredientid: result.recipeingredientid,
@@ -696,21 +604,26 @@ app.get('/viewRecipe/recipe=:id', function(request, response) {
                             ingredientid: result.ingredientid,
                             amount: result.recipeingredientAmount,
                             measurement: result.measurement,
+                            //Calculate the actual amount for each nutrition (go to calculateServing to see how this is calculated)
                             calories: calculateServing(result.foodAmount, result.recipeingredientAmount, result.calories),
                             carbohydrates: calculateServing(result.foodAmount, result.recipeingredientAmount, result.carbohydrates),
                             fat: calculateServing(result.foodAmount, result.recipeingredientAmount, result.fat),
                             protein: calculateServing(result.foodAmount, result.recipeingredientAmount, result.protein),
-                            saturates: result.saturates,
-                            sugars: result.sugars,
-                            salt: result.salt,
-                            fiber: result.fiber,
+                            saturates: calculateServing(result.foodAmount, result.recipeingredientAmount, result.saturates),
+                            sugars: calculateServing(result.foodAmount, result.recipeingredientAmount, result.sugars),
+                            salt: calculateServing(result.foodAmount, result.recipeingredientAmount, result.salt),
+                            fiber: calculateServing(result.foodAmount, result.recipeingredientAmount, result.fiber),
                         }
                         allRecipeIngredients.push(recipeIngredient);
-                        // Add the calculated calories to the current totalCalories for the whole meal
+                        // Add the calculated nutrition to the current totalMacros for each ingredient to use for a Total nutrition for entire meal
                         totalCalories = parseInt(totalCalories) + parseInt(recipeIngredient.calories);
                         totalCarbohydrates = parseFloat(totalCarbohydrates) + parseFloat(recipeIngredient.carbohydrates); 
                         totalFat = parseFloat(totalFat) + parseFloat(recipeIngredient.fat); 
-                        totalProtein = parseFloat(totalProtein) + parseFloat(recipeIngredient.protein); 
+                        totalProtein = parseFloat(totalProtein) + parseFloat(recipeIngredient.protein);
+                        totalSaturates = parseFloat(totalSaturates) + parseFloat(recipeIngredient.saturates);
+                        totalSugars = parseFloat(totalSugars) + parseFloat(recipeIngredient.sugars);
+                        totalSalt = parseFloat(totalSalt) + parseFloat(recipeIngredient.salt);
+                        totalFiber = parseFloat(totalFiber) + parseFloat(recipeIngredient.fiber);
                     });
                     // After all the ingredients have been created and the total nutrition has been added, create an object of the total for each nutrition in the meal
                     let totalNutrition = {
@@ -719,23 +632,29 @@ app.get('/viewRecipe/recipe=:id', function(request, response) {
                         carbohydrates: Math.round(totalCarbohydrates * 10) / 10,
                         fat: Math.round(totalFat * 10) / 10,
                         protein: Math.round(totalProtein * 10) / 10,
+                        saturates: Math.round(totalSaturates * 10) / 10,
+                        Sugars: Math.round(totalSugars * 10) / 10,
+                        salt: Math.round(totalSalt * 10) / 10,
+                        fiber: Math.round(totalFiber * 10) / 10,
                     }
-                    console.log(`Total Calories: ${totalNutrition.calories}, Total Carbs: ${totalNutrition.carbohydrates}, Total Fat: ${totalNutrition.fat}, Total Protein: ${totalNutrition.protein}`); //checking the values are being pulled through
-                    console.log("allRecipeIngredients: " + JSON.stringify(allRecipeIngredients)); //checking the values are being pulled through
-                    response.render('viewRecipe.ejs', {recipe, allRecipeIngredients, totalNutrition});
-                }
+                    //console.log(`Total Calories: ${totalNutrition.calories}, Total Carbs: ${totalNutrition.carbohydrates}, Total Fat: ${totalNutrition.fat}, Total Protein: ${totalNutrition.protein}`); //checking the values are being pulled through
+                    //console.log("allRecipeIngredients: " + JSON.stringify(allRecipeIngredients)); //checking the values are being pulled through
+                    response.render('viewRecipe.ejs', {recipe, allRecipeIngredients, totalNutrition, user: request.user});
+                } // If no ingredients were found
                 else {
                     console.log("No Ingredients Exist");
-                    // empty any previous recipeList and Calculations that might still exist (such as from a previous recipe view that had this data)
+                    // Empty any previous recipeList and Calculations that might still exist (such as from a previous recipe view that had this data)
                     allRecipeIngredients = [];
                     totalNutrition = [];
-                    response.render('viewRecipe.ejs', {recipe});
+                    // View the selected recipe with the empty Ingredients array
+                    response.render('viewRecipe.ejs', {recipe,user: request.user});
                 }
             });
         }
     });
 });
 
+// Edit the selected recipe
 app.post('/editRecipe/recipe=:id', function(request,response, next) {
     // Capture the input fields
     let name = request.body.name;
@@ -746,29 +665,25 @@ app.post('/editRecipe/recipe=:id', function(request,response, next) {
 
     // Check if the recipe being edited was created by the user
     db.query('SELECT addedByID FROM recipes where id = ?', [recipeid], function(error, result, fields){
-
-        if(result[0].addedByID == user.id) {
+        // If Recipe was created by user
+        if(result[0].addedByID == request.user.id) {
             // Create an array to store all failed field messages (allow all messages to display at once)
             let messages = [];
             validateBlankField(name,'Name', messages);
-            
             if(messages.length > 0) {
                 console.log(messages.join('\n'))
                 return {message: messages.join('\n')};
             }
-
-            if(user){
-                db.query('UPDATE recipes SET name = ?, description = ?, type = ?, serves = ? WHERE id = ?',
-                [name, description, type, serves, recipeid],
-                function(error, results, fields) {
-                    // If there is an issue with the query, output the error
-                    if (error) throw error;
-                    // If the food item is added
-                    console.log(`recipe: ${name} has been Updated`);
-                    response.redirect('/Recipes');
-                });
-            }
-        }
+            db.query('UPDATE recipes SET name = ?, description = ?, type = ?, serves = ? WHERE id = ?',
+            [name, description, type, serves, recipeid],
+            function(error, results, fields) {
+                // If there is an issue with the query, output the error
+                if (error) throw error;
+                // If the Recipe has been edited
+                console.log(`recipe: ${name} has been Updated`);
+                response.redirect('/Recipes');
+            });
+        } // If Recipe was not created by user, inform them they cannot edit the selected Recipe
         else {
             request.flash('editrecipeerror', '<B>Unable to edit a Recipe you did not create</B>');
             response.redirect('/viewRecipe/recipe=' + recipeid);
@@ -776,97 +691,76 @@ app.post('/editRecipe/recipe=:id', function(request,response, next) {
     });
 });
 
-
+// Inserting the selected Ingredient into the Selected recipe
 app.post('/insertIngredient/recipe=:id&food=:foodid', function (request, response) {
     const id = request.params.id;
     const food = request.params.foodid;
     const name = request.body.name;
     const amount = request.body.amount;
     const measurement = request.body.measurement;
-    const addedByID = user.id;
-    console.log (`${id} ${food} ${name} ${amount} ${measurement} ${addedByID}`);
-
-
-    //If User is logged in
-    if(typeof user !== 'undefined'){
-        console.log(user); // Check user exists
-        // Check the user created the recipe
-        db.query('Select addedByID from recipes where id = ?', [id], function(error, result, fields) {
-            if(result[0].addedByID == user.id){
-                // Check the user also created the Food
-                db.query('Select addedByID from food where id = ?', [food], function(error, results, fields) {
-                    if(results[0].addedByID == user.id){
-                        // IF both pass, allow the ingredient to be insterted to the recipe
-                        console.log(`User: ${addedByID} created both the FOOD and the RECIPE`)  
-                        //Link the selected Recipe with the currently selected Ingredient
-                        db.query('INSERT INTO recipeIngredient (recipeid, ingredientid, ingredientName, amount, measurement, addedByID)'
-                        + 'VALUES (?, ?, ?, ?, ?, ?)',
-                        [id, food, name, amount, measurement, addedByID],
-                        function(error, results, fields) {
-                            // If there is an issue with the query, output the error
-                            if (error) throw error;
-                            // If the food item is added
-                            console.log(`Food Item ${food} has been Added to recipe ${id}`);
-                            //redirect back to the edit recipe page for the currently selected recipe
-                            response.redirect('/viewRecipe/recipe='+id);
-                        });
-                    }
-                    else{
-                        request.flash('ingredienterror', '<B>Unable to add Ingredient you did not create</B>');
-                        response.redirect(`/selectIngredient/recipe=${id}&food=${food}`);
-                    }
-                });
-            } else {
-                request.flash('recipeerror', '<B>Unable to add to a Recipe you did not create</B>');
-                response.redirect(`/selectIngredient/recipe=${id}&food=${food}`);
-            }
-        });
-    }
-});
-
-app.post('/editSelectedIngredient/recipe=:recipeid&recipeIngredientid=:recipeIngredientid', function (request, response) {
-    const recipeid = request.params.recipeid;
-    const recipeIngredientid = request.params.recipeIngredientid;
-    const amount = request.body.amount;
-    const measurement = request.body.measurement;
-
-    //Link the selected Recipe with the currently selected Ingredient
-    db.query('UPDATE recipeIngredient SET amount = ?, measurement = ? where id = ?',
-    [amount, measurement, recipeIngredientid],
-    function(error, results, fields) {
-        // If there is an issue with the query, output the error
-        if (error) throw error;
-        // If the food item is added
-        console.log(`Ingredient ${recipeIngredientid} has been Edited`);
-        //redirect back to the edit recipe page for the currently selected recipe
-        response.redirect('/viewRecipe/recipe='+ recipeid);
+    const addedByID = request.user.id;
+    console.log (`Trying to insert Food: ${name} into Recipe`);
+    // Check the user created the Recipe
+    db.query('Select addedByID from recipes where id = ?', [id], function(error, result, fields) {
+        if(result[0].addedByID == request.user.id){
+            // Check the user also created the Food
+            db.query('Select addedByID from food where id = ?', [food], function(error, results, fields) {
+                if(results[0].addedByID == request.user.id){
+                    // If both pass, allow the ingredient to be insterted to the recipe
+                    //Link the selected Recipe with the currently selected Ingredient
+                    db.query('INSERT INTO recipeIngredient (recipeid, ingredientid, ingredientName, amount, measurement, addedByID)'
+                    + 'VALUES (?, ?, ?, ?, ?, ?)',
+                    [id, food, name, amount, measurement, addedByID],
+                    function(error, results, fields) {
+                        // If there is an issue with the query, output the error
+                        if (error) throw error;
+                        // If the food item is added
+                        console.log(`Food: ${name}, has been Added to the Recipe`);
+                        //redirect back to the edit recipe page for the currently selected recipe
+                        response.redirect('/viewRecipe/recipe='+id);
+                    });
+                }
+                else{
+                    // If user did not create the ingredient then inform them they cannot add it
+                    request.flash('ingredienterror', '<B>Unable to add Ingredient you did not create</B>');
+                    response.redirect(`/selectIngredient/recipe=${id}&food=${food}`);
+                }
+            });
+        } else {
+            // If user did not create the Recipe then inform them they cannot add anything to it
+            request.flash('recipeerror', '<B>Unable to add to a Recipe you did not create</B>');
+            response.redirect(`/selectIngredient/recipe=${id}&food=${food}`);
+        }
     });
 });
 
+
+// Removing Ingredient from Recipe
 app.get('/removeIngredient/recipe=:recipeid&recipeIngredient=:recipeIngredientid', function (request, response) {
     const recipeIngredientid = request.params.recipeIngredientid;
     const recipeid = request.params.recipeid;
     
     // Check if the recipe being edited was created by the user
     db.query('SELECT addedByID FROM recipes where id = ?', [recipeid], function(error, result, fields){
-
-        if(result[0].addedByID == user.id) {
+        if(result[0].addedByID == request.user.id) {
             db.query('DELETE FROM recipeIngredient where id = ?', [recipeIngredientid], function(error, results, fields) {
                 // If there is an issue with the query, output the error
                 if (error) throw error;
                 // If the food item is Removed
-                console.log(`Food Item ${recipeIngredientid} has been Removed from the Recipe: ${recipeid}`);
+                console.log(`Ingredient has been Removed`);
                 //redirect back to the edit recipe page for the currently selected recipe
                 response.redirect('/viewRecipe/recipe=' + recipeid);
             });
         }
         else {
+            // If user did not create the Recipe inform them they cannot remove Ingredients from it
             request.flash('removeerror', '<B>Unable to remove Ingredients from a Recipe you did not create</B>');
             response.redirect('/viewRecipe/recipe=' + recipeid);
         }
     });
 });
 
+// User Logging out
 app.post('/logout', function(request, response, next) {
     request.logout(function(err) {
         if (err) { return next(err); }
@@ -877,12 +771,12 @@ app.post('/logout', function(request, response, next) {
 });
 
 
-
+// Removing Users Account
 app.get('/removeUser', function(request, response) {
     // Store userid and username for after logout
-    let userid = user.id;
-    let username= user.username;
-        console.log("Deleting account " + user.username);
+    let userid = request.user.id;
+    let username= request.user.username;
+        console.log("Deleting account " + request.user.username);
         // Logout the User
         request.logout(function(err) {
             if (err) { return next(err); }
@@ -900,9 +794,10 @@ app.get('/removeUser', function(request, response) {
         response.redirect('/');
 });
 
+// Removing a created Food
 app.get('/removeFood/food=:foodid', function(request, response) {
     // Store userid and username for after logout
-    let userid = user.id;
+    let userid = request.user.id;
     let foodid = request.params.foodid
     db.query('Select addedByID FROM food where id = ?', [foodid], function(error, results, fields) {
         if(results[0].addedByID == userid){
@@ -910,65 +805,71 @@ app.get('/removeFood/food=:foodid', function(request, response) {
             db.query('DELETE FROM food where id = ?', [foodid], function(error, results, fields) {
             // If there is an issue with the query, output the error
             if (error) throw error;
+            console.log(`Food has been deleted`);
             });
             // Delete all food/ingredients from the recipeIngredients table
             db.query('DELETE FROM recipeIngredient where ingredientid = ?', [foodid], function(error, results, fields) {
                 // If there is an issue with the query, output the error
                 if (error) throw error;
                 });
+                console.log(`Food has been deleted from all Recipes`);
                 response.redirect('/food');
         }
         else {
+            // If user did not create Food, inform them they are unable to remove
             request.flash('removeerror', '<B>Unable to remove food you did not create</B>');
             response.redirect('/food');
         }
     });
 });
 
+// Removing a Recipe
 app.get('/removeRecipe/food=:recipeid', function(request, response) {
     // Store userid and username for after logout
-    let userid = user.id;
+    let userid = request.user.id;
     let recipeid = request.params.recipeid
     db.query('Select addedByID FROM recipes where id = ?', [recipeid], function(error, results, fields) {
         if(results[0].addedByID == userid){
-            // Delete the food from the food table
+            // Delete Recipe from recipes table
             db.query('DELETE FROM recipes where id = ?', [recipeid], function(error, results, fields) {
             // If there is an issue with the query, output the error
             if (error) throw error;
+            console.log(`Recipe has been deleted`);
             });
             // Delete all food/ingredients from the recipeIngredients table
             db.query('DELETE FROM recipeIngredient where recipeid = ?', [recipeid], function(error, results, fields) {
                 // If there is an issue with the query, output the error
                 if (error) throw error;
+                console.log(`recipeIngredients related to this Recipe have been removed`);
                 });
                 response.redirect('/recipes');
         }
         else {
-            request.flash('removeerror', '<B>Unable to remove food you did not create</B>');
-            response.redirect('/food');
+            // If user did not create recipe, inform them they are unable to remove
+            request.flash('removeerror', '<B>Unable to remove Recipe you did not create</B>');
+            response.redirect('/recipes');
         }
     });
 });
 
-
-
+// Load the users profile
 app.get("/profile", isAuth, (request, response) => {
-	response.render('profile.ejs');
+	response.render('profile.ejs', {user: request.user});
 });
 
+// Load All the recipes the User has created (If a user is logged in) and all the Public Recipes available
 app.get('/recipes', renderRecipes, function(request,response) {
-    response.render('recipes.ejs');
+    response.render('recipes.ejs',{user:request.user});
 });
 
 
-
+// Creating a Food
 app.post('/createFoodItem', function(request, response, next) {
     // Capture the input fields
     let name = request.body.name;
     let brand = request.body.brand;
     let shop = request.body.shop;
     let cost = request.body.pound * 100 + request.body.pence; //multiply the pound by 100 to convert it to pense
-    //let cost = request.body.pence; //easier to test temporarily without the calculation
     let amount = request.body.amount;
     let measurement = request.body.measurement;
     let servings = request.body.servings;
@@ -980,10 +881,11 @@ app.post('/createFoodItem', function(request, response, next) {
     let sugars = request.body.sugars;
     let salt = request.body.salt;
     let fiber = request.body.fiber;
-    let addedByID = user.id;
+    let addedByID = request.user.id;
     let currentDateTime = new Date();
     let isPrivate = 1;  // Not allowing any user to create any public Food Items
 
+    // Testing the isPrivate does work, keeping in case the option is to become available in the future
     // if(isPrivate == null) {
     //     isPrivate = 0
     // } else{
@@ -1023,7 +925,7 @@ app.post('/createFoodItem', function(request, response, next) {
     // Create an array to store all failed field messages (allow all messages to display at once)
     let messages = [];
     // Create a single method that will check for blank fields that can be used throughout all the app to remove bloating
-    //send through the value of the field, the name of the field and the messages array to add the new message if required
+    // Send through the value of the field, the name of the field and the messages array to add the new message if required
     validateBlankField(name,'Name', messages);
     validateBlankField(amount,'Amount', messages);
     validateBlankField(measurement,'Measurement', messages);
@@ -1032,37 +934,36 @@ app.post('/createFoodItem', function(request, response, next) {
     validateBlankField(carbohydrates,'Carbohydrates', messages);
     validateBlankField(fat,'Fat', messages);
     validateBlankField(protein,'Protein', messages);
-
+    // Create Nmber Validation similar to the above Blank Field Validation
     validateNumber(calories, 'Calories', messages)
     validateNumber(carbohydrates,'Carbohydrates', messages);
     validateNumber(fat,'Fat', messages);
     validateNumber(protein,'Protein', messages);
     validateNumber(request.body.pound,'Pound', messages);
     validateNumber(request.body.pence,'Pence', messages);
-
-
+    // If there are any messages, display all messages for the User to know what failed validation
     if(messages.length > 0) {
         // Add a new line (</br> for html) after each message
         request.flash('error', messages.join('</br>'));
         response.redirect('/createFood');
-    } else if(user){
+    } else {
         db.query('INSERT INTO food (name, brand, shop, cost, amount, measurement, servings, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, addedDateTime, isPrivate)'
-        + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', // Splitting onto separate line to make it easier to read
         [name, brand, shop, cost, amount, measurement, servings, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, addedByID, currentDateTime, isPrivate],
         function(error, results, fields) {
             // If there is an issue with the query, output the error
             if (error) throw error;
-            // If the food item is added
-            console.log(`Food Item ${name} has been Created`);
+            // If the food is created
+            console.log(`Food: ${name} has been Created`);
             response.redirect('/food');
         });
     } 
 });
 
-//similar to /createFoodItem
+// Editing selected Food
 app.post('/editFood/food=:id', function(request, response, next) {
     // Capture the input fields
-    //take the id from the url to know which food is being updated
+    // Take the id from the url to know which food is being updated
     let foodid = request.params.id;
     let name = request.body.name;
     let brand = request.body.brand;
@@ -1082,6 +983,7 @@ app.post('/editFood/food=:id', function(request, response, next) {
 
     // Create an array to store all failed Validation messages (allow all messages to display at once)
     let messages = [];
+    // Validate all the Blank Fields
     validateBlankField(name,'Name', messages);
     validateBlankField(amount,'Amount', messages);
     validateBlankField(measurement,'Measurement', messages);
@@ -1090,37 +992,36 @@ app.post('/editFood/food=:id', function(request, response, next) {
     validateBlankField(carbohydrates,'Carbohydrates', messages);
     validateBlankField(fat,'Fat', messages);
     validateBlankField(protein,'Protein', messages);
-
+    //Validate all the Fields that should contain only numbers
     validateNumber(calories, 'Calories', messages)
     validateNumber(carbohydrates,'Carbohydrates', messages);
     validateNumber(fat,'Fat', messages);
     validateNumber(protein,'Protein', messages);
     validateNumber(request.body.pound,'Pound', messages);
     validateNumber(request.body.pence,'Pence', messages);
-
+    // If any messages exist display them to the user
     if(messages.length > 0) {
         request.flash('editvalidationerror', messages.join('</br>'));
         response.redirect('/viewFood/food=' + foodid);
     } else {        
         // Check user created the Food
         db.query('Select addedByID from food where id = ?', [foodid], function(error, result, fields) {
-            // If there is an issue with the query, output the error
-            //check the addedByID is being pulled
-            console.log(result);
             if (error) throw error;
-            if(result[0].addedByID == user.id){
-                // If the Food was created by the user
-                db.query('UPDATE food SET name = ?, brand = ?, shop = ?, cost = ?, amount = ?, measurement = ?, servings = ?, ' + //separate to next like to make it easier to read
+            // If the Food was created by the user
+            if(result[0].addedByID == request.user.id){
+                db.query('UPDATE food SET name = ?, brand = ?, shop = ?, cost = ?, amount = ?, measurement = ?, servings = ?, ' + //split some to next line to make it easier to read
                 'calories = ?, carbohydrates = ?, fat = ?, protein = ?, saturates = ?, sugars = ?, salt = ?, fiber = ? WHERE id = ?',
                 [name, brand, shop, cost, amount, measurement, servings, calories, carbohydrates, fat, protein, saturates, sugars, salt, fiber, foodid],
                 function(error, results, fields) {
                     // If there is an issue with the query, output the error
                     if (error) throw error;
-                    // If the food item is added
-                    console.log(`Food Item ${name} has been Edited`); 
+                    // If the food item has been edited
+                    console.log(`Food: ${name} has been Edited`); 
                     response.redirect('/food');
                 });
-            } else {
+            }
+            else {
+                // If Food was not created by user, inform user they cannot edit the selected Food
                 request.flash('editfooderror', '<B>Unable to edit Food you did not create</B>');
                 response.redirect('/viewFood/food=' + foodid);
             }
