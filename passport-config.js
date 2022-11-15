@@ -52,23 +52,15 @@ function initialize(passport){
     Not sure exactly how this works yet or the full understanding of serialization/deserialization
     */
     passport.use(new LocalStrategy(verifyUser));    
-    
-    passport.serializeUser((user, done) => {
+
+    passport.serializeUser(function(user, callback) {
         console.log(`Serialize: ${user.username}`);
-        done(null,user.id)
+        callback(null, { id: user.id, username: user.username });
     });
-    
-    passport.deserializeUser(function(userId, done){
-        db.query('SELECT * FROM users WHERE id = ?', [userId], function(error, results) {
-            done(null, results[0]);
-            //create a user objest to be used throughout
-            user = {
-                id: results[0].id,
-                username: results[0].username,
-                password: results[0].password
-            };
-            console.log('Deserialized: ' + user.username);
-        });
+      
+    passport.deserializeUser(function(user, callback) {
+        console.log(`Deserialize: ${user.username}`);
+        return callback(null, user);
     });
 }
 
