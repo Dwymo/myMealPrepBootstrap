@@ -13,19 +13,30 @@
     </head>
     <body>
         <!-- Responsive navbar-->
+        <div class="collapse" id="navbarToggleExternalContent" style="">
+            <div class="bg-dark p-4">
+              <h5 class="text-white h4">Collapsed content</h5>
+              <span class="text-muted">Toggleable via the navbar brand.</span>
+            </div>
+          </div>
+
         <nav class="navbar navbar-dark bg-dark">
-            <!-- Wrap navbar in a container -->
-            <div class="container">
                 <!-- Nav Title/Logo -->
                 <div class="nav-header">
                     <a class="navbar-brand" href="#">DWymer</a>
                 </div>
                 <!-- Main Nav links -->
-                <div class="nav-links navbar-expand-lg">
+                <div class="navbar-expand">
                     <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/food">Food</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/recipes">Recipes</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/food">Food</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/recipes">Recipes</a>
+                        </li>
                     </ul>
                 </div>
                 <!-- User specific nav links -->
@@ -40,21 +51,61 @@
                             </li>
                         <% } else { %>
                             <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
                         <% } %>
                     </ul>
                 </div>
-            </div>
         </nav>
         <!-- Page content-->
-        <div class="container">
-            <div class="text-center mt-5">
-                <h1>Welcome to myMealPrep</h1>
-                <p>This site has been created for personal use only so accounts may be deleted periodically</p>
-                <p>However, feel free to register and check it out</p>
-                <p>You can instantly delete your account from the profile page whenever you want</p>
+        <div class="index-first">
+            <div class="container text-center ">
+                <!-- Page Header -->
+                <div class="index-header py-5">
+                    <h1 class="heading">My Meal Prep</h1>
+                </div>
+                <!-- First Container -->
+                <div class="row align-items-center px-5">
+                    <div class="col-12 col-lg-6 my-5">
+                        <img class="ratio-4x3 index-image index-image-sm index-image-xl" src="img\index_pancakes1.png">
+                    </div>
+                        <div class="col-12 col-lg-6 index-second rounded-5">
+                            <h1 class="title">Create your own recipes from scratch</h1>
+                            <a class="btn btn-primary" href="/register">BEGIN YOUR ADVENTURE!</a>
+                        </div>
+                </div>
+
+                <!-- Second Container -->
+                <div class="row my-5 align-items-center">
+                    <div class="">
+                        <div class="index-third rounded-5">
+                            <h1 class="title">"Eat this, not that!"</h1>
+                            <p>It's tempting to have someone tell you what to eat and when... who wants to do the leg work? but when does that stop?</p>
+                        </div>
+                        <div class="index-third my-5 rounded-5">
+                            <h1 class="title">"What next?"</h1>
+                            <p>What happens when you do eventually decide to stop, do you have the knowledge to maintain, do you have control of your habbits?</p>
+                        </div>
+                        <div class="index-third rounded-5">
+                            <h1 class="title">"Be in control"</h1>
+                            <p>This site is designed for you to do the leg work, be more aware of the foods you are eating and create control from the start</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Third Container -->
+                <div class="row p-5 mt-5 index-second">
+                    <div class=" text-center">
+                        <ul class="col-12">
+                            <li class="index-list-group-item fs-3">Learn more about your eating habbits</li>
+                            <li class="index-list-group-item fs-3">Learn about the nutrion you are consuming</li>
+                            <li class="index-list-group-item fs-3">track/monitor your progress/improvements</li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <!-- <img class="ratio-4x3 index-image index-image-xl" src="img/4x3_image_placeholder.jpg">> -->
+                    </div>
+                </div>
             </div>
         </div>
+
         <!-- Bootstrap CSS only-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
         <!-- Core theme JS-->
