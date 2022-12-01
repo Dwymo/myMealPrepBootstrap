@@ -20,6 +20,9 @@
     https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
     https://stackoverflow.com/questions/46807385/passport-js-serializeuser-deserializeuser
     
+    Usefull Bootstrap Links:
+    https://getbootstrap.com/docs/5.0/layout/breakpoints/
+
 	Additional Information:
 	run this file to connect to DB then go to: http://localhost:3000, on web browser to view the code. 
 */
@@ -83,6 +86,8 @@ app.use(bodyParser.urlencoded({
 app.use(express.static('public'));
 // Use the views folder to allow navigation to these files
 app.use(express.static('views'));
+// Use the assets folder to allow Usage if images stored there
+app.use(express.static('assets'));
 // setting up EJS filetype
 app.set('view engine', 'ejs');
 
