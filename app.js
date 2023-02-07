@@ -19,9 +19,14 @@
     https://qawithexperts.com/questions/124/how-to-show-confirm-box-when-clicking-link-a-href-tag - used for the onclick for deleting Account in profile
     https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
     https://stackoverflow.com/questions/46807385/passport-js-serializeuser-deserializeuser
-    
+    https://coder-coder.com/background-image-opacity/
+
     Usefull Bootstrap Links:
     https://getbootstrap.com/docs/5.0/layout/breakpoints/
+    https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox
+    https://getbootstrap.com/docs/4.0/utilities/flex/
+
+    https://www.w3schools.com/bootstrap/bootstrap_ref_js_carousel.asp
 
 	Additional Information:
 	run this file to connect to DB then go to: http://localhost:3000, on web browser to view the code. 
