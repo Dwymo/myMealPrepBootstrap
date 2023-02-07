@@ -10,99 +10,232 @@
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <!-- Responsive navbar-->
-        <div class="collapse" id="navbarToggleExternalContent" style="">
-            <div class="bg-dark p-4">
-              <h5 class="text-white h4">Collapsed content</h5>
-              <span class="text-muted">Toggleable via the navbar brand.</span>
+        <!-- Navbar -->
+        <nav class="navbar p-2 bg-gray95">
+            <!-- Nav Title/Logo -->
+            <div class="nav-header">
+                <a class="navbar-brand" href="#">DWymer</a>
             </div>
-          </div>
-
-        <nav class="navbar navbar-dark bg-dark">
-                <!-- Nav Title/Logo -->
-                <div class="nav-header">
-                    <a class="navbar-brand" href="#">DWymer</a>
-                </div>
-                <!-- Main Nav links -->
-                <div class="navbar-expand">
-                    <ul class="navbar-nav">
+            <!-- Main Nav links -->
+            <div class="navbar-expand">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/food">Food</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/recipes">Recipes</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- User specific nav links -->
+            <div class="nav-user navbar-expand-lg">
+                <ul class="navbar-nav">
+                    <% if (typeof user !== 'undefined') { %>
+                        <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/">Home</a>
+                            <form action="/logout" method="post">
+                                <button class="logout btn btn-dark" type="submit">Sign out</button>
+                            </form>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/food">Food</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/recipes">Recipes</a>
-                        </li>
-                    </ul>
-                </div>
-                <!-- User specific nav links -->
-                <div class="nav-user navbar-expand-lg">
-                    <ul class="navbar-nav">
-                        <% if (typeof user !== 'undefined') { %>
-                            <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
-                            <li class="nav-item">
-                                <form action="/logout" method="post">
-                                    <button class="logout btn btn-dark" type="submit">Sign out</button>
-                                </form>
-                            </li>
-                        <% } else { %>
-                            <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                        <% } %>
-                    </ul>
-                </div>
+                    <% } else { %>
+                        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                    <% } %>
+                </ul>
+            </div>
         </nav>
-        <!-- Page content-->
-        <div class="index-first">
-            <div class="container text-center ">
-                <!-- Page Header -->
-                <div class="index-header py-5">
-                    <h1 class="heading">My Meal Prep</h1>
-                </div>
-                <!-- First Container -->
-                <div class="row align-items-center px-5">
-                    <div class="col-12 col-lg-6 my-5">
-                        <img class="ratio-4x3 index-image index-image-sm index-image-xl" src="img\index_pancakes1.png">
-                    </div>
-                        <div class="col-12 col-lg-6 index-second rounded-5">
-                            <h1 class="title">Create your own recipes from scratch</h1>
-                            <a class="btn btn-primary" href="/register">BEGIN YOUR ADVENTURE!</a>
-                        </div>
-                </div>
 
-                <!-- Second Container -->
-                <div class="row my-5 align-items-center">
-                    <div class="">
-                        <div class="index-third rounded-5">
-                            <h1 class="title">"Eat this, not that!"</h1>
-                            <p>It's tempting to have someone tell you what to eat and when... who wants to do the leg work? but when does that stop?</p>
-                        </div>
-                        <div class="index-third my-5 rounded-5">
-                            <h1 class="title">"What next?"</h1>
-                            <p>What happens when you do eventually decide to stop, do you have the knowledge to maintain, do you have control of your habbits?</p>
-                        </div>
-                        <div class="index-third rounded-5">
-                            <h1 class="title">"Be in control"</h1>
-                            <p>This site is designed for you to do the leg work, be more aware of the foods you are eating and create control from the start</p>
+
+        <!-- Main Page -->
+        <div class="index-Page text-center">
+            <!-- Sections ONE - TITLE -->
+            <div class="index-header">
+                <div class="row index-row align-content-center">
+                    <div class="col ">
+                        <div class="container index-text">
+                            <div class="index-header-title">
+                                <h1>My Meal Prep</h1>
+                            </div>
+                            <div class="index-header-slogan">
+                                <h2>Preparing and portioning meals your way.</h2>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- Third Container -->
-                <div class="row p-5 mt-5 index-second">
-                    <div class=" text-center">
-                        <ul class="col-12">
-                            <li class="index-list-group-item fs-3">Learn more about your eating habbits</li>
-                            <li class="index-list-group-item fs-3">Learn about the nutrion you are consuming</li>
-                            <li class="index-list-group-item fs-3">track/monitor your progress/improvements</li>
-                        </ul>
-                    </div>
-                    <div class="col-12 col-lg-6">
-                        <!-- <img class="ratio-4x3 index-image index-image-xl" src="img/4x3_image_placeholder.jpg">> -->
+            </div>
+            <!-- Section TWO - WHY -->
+            <div class="index-container mt-5 bg-gray95">
+                <div class="index-text">
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <div class="container">
+                                <!-- <h1>Why Meal Prep?</h1> -->
+                                <img src="img\Why_Meal_Prep.png" alt="placeholder" width="60%">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <!-- Carousel -->
+                            <div class="index-header-text">
+                                <div id="indexCarousel" class="carousel carousel-dark slide" data-ride="carousel">
+                                    <!-- Carousel slides -->
+                                    <div class="row">
+                                        <div class="col-8 offset-2">
+                                            <div class="carousel-inner" role="listbox"> 
+                                                <!-- Carousel Item 1 -->
+                                                <div class="item active">
+                                                    <!-- Save Time and reduce stress -->
+                                                    <div class="container">
+                                                        <div class="row">
+                                                            <h2>Save Time and<br>reduce stress</h2>
+                                                            <p>Save time and reduce stress by preparing your meals and ingredients in advance so that they are readily available for the week and remove the need to think of meals each day. Doing so also reduces the amount of time spent each and every day, preparing all ingredients, cooking the meals and then cleaning up after.</p>                                               
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Carousel Item 2 -->
+                                                <div class="item">
+                                                    <!-- Portion Control/Weight Management -->
+                                                    <div class="container">
+                                                        <div class="row">
+                                                            <h2>Portion Control/<br>Weight Management</h2>
+                                                            <p>Measuring out each and every portion allows you to control the amount of food that you are consuming, ensuring that you get the required nutrients needed each day. This can prevent over/under eating and assist with weight management.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Carousel Item 3 -->
+                                                <div class="item">
+                                                    <!-- Cost-Effective -->
+                                                    <div class="container">
+                                                        <div class="row">
+                                                            <h2>Cost-Effective</h2>
+                                                            <p>Save money in the long run by bulk purchasing ingredients and reducing the amount of wasted leftovers. Purchasing in advance also provides you time to pre-plan what is required, reducing the amount of money spent on wasted ingredients.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Carousel Item 4 -->
+                                                <div class="item">
+                                                    <!-- Organise your Kitchen / Environment -->
+                                                    <div class="container">
+                                                        <div class="row">
+                                                            <h2>Organise your<br>Kitchen/Environment</h2>
+                                                            <p>Store your ingredients and Equipment in an organised manner making it easier to locate what you need more efficiently. This in turn can help to maintain a clean, tidy and safe environment thanks to reduced clutter.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a class="carousel-control-prev" href="#indexCarousel" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#indexCarousel" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Section THREE - Tools -->
+            <!-- Section THREE Part ONE - Main Tools (Database for food and recipes) -->
+            <div class="index-container mt-5 bg-gray95">
+                <div class="index-text">
+                    <h1>Create your own Database of food and Recipes</h1>
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <div class="container">
+                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder" width="50%">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <p>Do you get overwhelmed with too many options in Meal Prep Apps.? Do you notice yourself getting decision paralysis or spending too long sifting through the plethora of recipes hand, only to notice the amount of time that has passed by without a single decision</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <p>Do you find yourself comparing your creations with others and trying to compete to make the perfect meal, never living up to the unrealistic expectations of what is already available, thus becoming disappointed in your own food?</p>
+                            <p><b>Don't let perfection get in the way of good enough.</b></p>
+                        </div>
+                        <div class="col">
+                            <img src="img\4x3_image_placeholder.jpg" alt="placeholder" width="50%">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <img src="img\4x3_image_placeholder.jpg" alt="placeholder" width="50%">
+                        </div>
+                        <div class="col">
+                            <p> Remove all the unwanted distractions and begin your very own, personalised, meal prep adventure </p>
+                        <h1>(Register Button)</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Section THREE Part TWO - Additional Tools (Progress Tracker, Shopping List, etc...) -->
+            <div class="container-fluid index-container index-tools">
+                <h1>What tools are available here to help with Meal Prep</h1>
+                <div class="container">
+                    <div class="row justify-content-between">
+                        <div class="col-3">
+                            <div class="card">
+                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder">
+                                <h2>Shopping List</h2>
+                                <p>Streamline the shopping process and reduce impulse purchases with a Shopping List</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card">
+                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder">
+                                <h2>Food Database</h2>
+                                <p>Create a personalised database of food/ingredients and Recipes for yourself that can be filtered by dietary restrictions, ingredient, and meal type.</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card">
+                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder">
+                                <h2>Calendar</h2>
+                                <p>Create a personalised plan for your meals through each week/month and be able to refer back to previous weeks/months as and when required</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-between">
+                        <div class="col-3">
+                            <div class="card">
+                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder">
+                                <h2>Progress Tracker</h2>
+                                <p>Create personal goals (short term or long term) and track your progress throughout</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card">
+                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder">
+                                <h2>Cook Book</h2>
+                                <p>Create a Personalised Cook Book of your favourite meals and share them with others</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card">
+                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder">
+                                <h2>Reminders</h2>
+                                <p>Set-up reminders for when to eat/drink so you never miss a meal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sections FOUR - FOOTER -->
+            <div class="container-fluid index-container index-footer bg-gray95">
+                <h1>FOOTER</h1>
             </div>
         </div>
 
@@ -110,5 +243,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
     </body>
 </html>
