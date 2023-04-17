@@ -142,30 +142,34 @@ border-radius: 1rem;
 
 .index-header {
   position:relative;
-  background-image: url("dan-gold-4_jhDO54BYg-unsplash.jpg"); /* The image used */
+  /*background-image: url("s-well-CJdZ800-Fbs-unsplash.jpg"); /* The image used */
+  background-color: var(--grey95);
   background-position: center; /* Center the image */
   background-repeat: no-repeat; /* Do not repeat the image */
-  background-size:cover; /* Resize the background image to cover the entire container */
-  margin-top: -20px;
-  min-height: 10vh;
+  background-size: auto; /* Resize the background image to cover the entire container */
+  min-height: 40vh;
+  /* width:auto */
+  /* width:fit-content */
 }
 
 .index-header::before {
   content: "";
   position: absolute;
-  background-color: var(--grey95);
+  /* background-color: var(--grey95);
   opacity: 0.5;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 0; */
 }
 
 .index-header .index-text {
   position: relative;
-  padding: 50px 0;
 }
 
+.index-header .index-image {
+  position: relative;
+}
 
 .index-text h1 {
   font-size: calc(3.5rem + 1vw);
@@ -4185,10 +4189,10 @@ textarea.form-control-lg {
   justify-content: space-between;
 }
 .navbar-brand {
-  padding-top: 0.3125rem;
-  padding-bottom: 0.3125rem;
+  /* padding-top: 0.3125rem;
+  padding-bottom: 0.3125rem; */
   margin-right: 1rem;
-  font-size: 1.25rem;
+  font-size: 3rem;
   text-decoration: none;
   white-space: nowrap;
 }

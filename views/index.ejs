@@ -10,64 +10,88 @@
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="js/scripts.js"></script>
     </head>
     <body>
         <!-- Navbar -->
-        <nav class="navbar p-2 bg-gray95">
-            <!-- Nav Title/Logo -->
-            <div class="nav-header">
-                <a class="navbar-brand" href="#">DWymer</a>
-            </div>
-            <!-- Main Nav links -->
-            <div class="navbar-expand">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/food">Food</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/recipes">Recipes</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- User specific nav links -->
-            <div class="nav-user navbar-expand-lg">
-                <ul class="navbar-nav">
-                    <% if (typeof user !== 'undefined') { %>
-                        <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container">
+                <!-- Nav Title/Logo -->
+                <div class="nav-header">
+                    <!-- Nav link is higher than the rest of the content, adding into its own Unordered list seams to fix this -->
+                    <ul class="navbar-nav">
                         <li class="nav-item">
-                            <form action="/logout" method="post">
-                                <button class="logout btn btn-dark" type="submit">Sign out</button>
-                            </form>
+                            <a class="navbar-brand" href="#">DWymer</a>
                         </li>
-                    <% } else { %>
-                        <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                    <% } %>
-                </ul>
+                    </ul>
+                </div>
+                <!-- Main Nav links -->
+                <div class="navbar-expand">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/food">Food</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/recipes">Recipes</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- User specific nav links -->
+                <div class="nav-user navbar-expand-lg">
+                    <ul class="navbar-nav">
+                        <% if (typeof user !== 'undefined') { %>
+                            <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
+                            <li class="nav-item">
+                                <form action="/logout" method="post">
+                                    <button class="logout btn btn-dark" type="submit">Sign out</button>
+                                </form>
+                            </li>
+                        <% } else { %>
+                            <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                        <% } %>
+                    </ul>
+                </div>
             </div>
         </nav>
-
-
         <!-- Main Page -->
         <div class="index-Page">
             <!-- Sections ONE - TITLE -->
-            <div class="index-header">
-                <div class="row index-row align-content-center">
-                    <div class="col ">
-                        <div class="container index-text">
-                            <div class="index-header-title">
-                                <h1>My Meal Prep</h1>
-                            </div>
-                            <div class="index-header-slogan">
-                                <h2>Preparing and portioning meals your way.</h2>
+            <!--
+            Index Header:
+            2 Columns
+            Centered hight
+            Centered width with slight gap in midle
+
+            Column 1: Title, Registration button
+            Column 2: Carousell of something (images of meals / reasons to meal prep)
+            -->
+            <div class="index-header row align-items-center">
+                <div class="index-container bg-platinum">
+                    <!-- 2nd index-container centers the row with auto lef/right margins, without the container spans the whole screen from the above row, row needed to ensure background colour can span the whole screen -->
+                        <div class="index-container">
+                            <div class="row">
+                                <div class="index-text col-5">
+                                    <div class="container index-text">
+                                        <div class="index-header-title">
+                                            <h1>My Meal Prep</h1>
+                                        </div>
+                                        <div class="index-header-slogan">
+                                            <h3>Preparing and portioning meals your way.</h3>
+                                        </br></br>
+                                            <h5>A Plethora of meals could be intimidating to start of with. Too many choices that appear 'perfect', you could never amount to the level shown. But why let 'Perfection' stop you.</h5>
+                                        </br></br>
+                                            <h4>Begin your very own adventure today. Click HERE and be the main character of your own journey</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="index-image col-5 offset-1">
+                                    <img src="img\s-well-CJdZ800-Fbs-unsplash.jpg" alt="placeholder" width="730px">
+                                </div>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
             <!-- Section TWO - WHY -->
@@ -81,16 +105,86 @@
                             </div>
                         </div>
                         <div class="col-7 offset-1">
-                            <!-- Carousel -->
+                            <div id="accordion">
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                Save Time and reduce stress:
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                                        <div class="card-body bg-gray95">
+                                            Save time and reduce stress by preparing your meals and ingredients in advance so that they are readily available for the week and remove the need to think of meals each day.
+                                            Doing so also reduces the amount of time spent each and every day, preparing all ingredients, cooking the meals and then cleaning up after.
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="card">
+                                    <div class="card-header" id="headingTwo">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                Portion Control/Weight Management:
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                                        <div class="card-body bg-gray95">
+                                            Measuring out each and every portion allows you to control the amount of food that you are consuming, ensuring that you get the required nutrients needed each day.
+                                            This can prevent over/under eating and assist with weight management.
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="card">
+                                    <div class="card-header" id="headingThree">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                                Cost-Effective:
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                                        <div class="card-body bg-gray95">
+                                            Save money in the long run by bulk purchasing ingredients and reducing the amount of wasted leftovers.
+                                            Purchasing in advance also provides you time to pre-plan what is required, reducing the amount of money spent on wasted ingredients.                   
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="card">
+                                    <div class="card-header" id="headingFour">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                                Organise your Kitchen / Environment:
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+                                        <div class="card-body bg-gray95">
+                                            Store your ingredients and Equipment in an organised manner making it easier to locate what you need more efficiently.
+                                            This in turn can help to maintain a clean, tidy and safe environment thanks to reduced clutter.                   
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carousel
                             <div class="index-header-text index-container bg-platinum py-5">
-                                <div id="indexCarousel" class="carousel carousel-dark slide text-center" data-ride="carousel">
-                                    <!-- Carousel slides -->
+                                <div id="indexCarousel2" class="carousel carousel-dark slide text-center" data-ride="carousel">
+                                     Carousel slides 
                                     <div class="row">
                                         <div class="col-8 offset-2">
                                             <div class="carousel-inner" role="listbox"> 
-                                                <!-- Carousel Item 1 -->
+                                                 Carousel Item 1 
                                                 <div class="item active">
-                                                    <!-- Save Time and reduce stress -->
+                                                     Save Time and reduce stress 
                                                     <div class="container">
                                                         <div class="row">
                                                             <h2>Save Time and<br>reduce stress</h2>
@@ -98,9 +192,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- Carousel Item 2 -->
+                                                 Carousel Item 2 
                                                 <div class="item">
-                                                    <!-- Portion Control/Weight Management -->
+                                                     Portion Control/Weight Management 
                                                     <div class="container">
                                                         <div class="row">
                                                             <h2>Portion Control/<br>Weight Management</h2>
@@ -108,9 +202,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- Carousel Item 3 -->
+                                                 Carousel Item 3 
                                                 <div class="item">
-                                                    <!-- Cost-Effective -->
+                                                     Cost-Effective 
                                                     <div class="container">
                                                         <div class="row">
                                                             <h2>Cost-Effective</h2>
@@ -118,9 +212,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- Carousel Item 4 -->
+                                                 Carousel Item 4 
                                                 <div class="item">
-                                                    <!-- Organise your Kitchen / Environment -->
+                                                     Organise your Kitchen / Environment 
                                                     <div class="container">
                                                         <div class="row">
                                                             <h2>Organise your<br>Kitchen/Environment</h2>
@@ -131,136 +225,22 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <a class="carousel-control-prev" href="#indexCarousel" role="button" data-slide="prev">
+                                    <a class="carousel-control-prev" href="#indexCarousel2" role="button" data-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                         <span class="sr-only">Previous</span>
                                     </a>
-                                    <a class="carousel-control-next" href="#indexCarousel" role="button" data-slide="next">
+                                    <a class="carousel-control-next" href="#indexCarousel2" role="button" data-slide="next">
                                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                         <span class="sr-only">Next</span>
                                     </a>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            </div>-->
 
-            <!-- Section THREE - Tools -->
-            <!-- Section THREE Part ONE - Main Tools (Database for food and recipes) -->
-            <div class="index-container index-text mt-5 p-5 bg-gray95">
-                
-                <!-- <div class="row">
-                    <div class="col-12">
-                        <div class="index-container bg-platinum">
-                            <h2>Create your own Food/Recipe Database</h2>
-                            <p>
-                                Do you get overwhelmed with Meal Prep Apps?<br><br>
-                                Too Many Options to choose from<br><br>
-                                All that time spent sifting through without choosing a meal<br><br>
-                                Comparing too many of the same recipes, trying to find the 'perfect' one<br>
-                                (They can't ALL be right... can they)<br>
-                                (Why does this one take longer)<br>
-                                (why does that ingredient have different nutritional information)<br>
-                                (How is so much food so little calories)<br>
-                                (I dont like that ingredient but how can I remove it)<br>
-                            </p>
-                        </div>
-                    </div>
-                </div> -->
-                    <div class="row index-container bg-platinum p-5">
-                        <div class="col-5">
-                            <div class="index-container bg-gray95 text-center">
-                                <div class="title">
-                                    <h1>This is your journey</h1>
-                                </div>
-                                <div class="content mt-5">
-                                    <h2>
-                                        Adventure into the world of Meal Prep today!<br><br>
-                                    </h2>
-                                    <button type="button" class="btn btn-secondary btn-lg">Click to Start!</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4 offset-2">
-                            <div class="index-container bg-platinum p-2">
-                                <!-- <h1>Why Meal Prep?</h1> -->
-                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder" width="100%">
-                            </div>
-                        </div>
-                        <!-- <div class="col-6">
-                            <p>Do you get overwhelmed with too many options in Meal Prep Apps.? Do you notice yourself getting decision paralysis or spending too long sifting through the plethora of recipes hand, only to notice the amount of time that has passed by without a single decision</p>
-                        </div> -->
-                    </div>
-                    <div class="row mt-5 index-container bg-platinum p-5">
-                        <div class="col-4">
-                            <div class="index-container bg-gray95 p-2">
-                                <!-- <h1>Why Meal Prep?</h1> -->
-                                <img src="img\4x3_image_placeholder.jpg" alt="placeholder" width="100%">
-                            </div>
-                        </div>
-
-                        <div class="col-6 offset-1">
-                            <div class="index-container bg-gray95">
-                                <div class="content">
-                                    <div class="title text-center">
-                                        <h4>Do you get overwhelmed with Meal Prep Apps?
-                                            Too Many Options to choose from.
-                                            Hours sifting through without choosing a meal.
-                                            Comparing too many of the same recipes, trying to find the 'perfect' one?
-                                        </h4>
-                                    </div>
-                                    <h4>
-                                        <br><br>
-                                        'They can't ALL be right... can they'<br><br>
-                                        'Why does this one take longer'<br><br>
-                                        'why does that ingredient have different nutritional information'<br><br>
-                                        'How is so much food so little calories'<br><br>
-                                        'I dont like that ingredient but how can I remove it'<br><br><br><br>
-                                        Dont Let Perfect get in the way of good enough
-                                    </h4>
-
-
-                                    <!-- Do you get overwhelmed with Meal Prep Apps?
-                                    Too Many Options to choose from
-                                    All that time spent sifting through without choosing a meal
-                                    Comparing too many of the same recipes, trying to find the 'perfect' one
-                                    (They can't ALL be right... can they)
-                                    (Why does this one take longer)
-                                    (why does that ingredient have different nutritional information)
-                                    (How is so much food so little calories)
-                                    (I dont like that ingredient but how can I remove it) -->
-                                </div>
-                            </div>
-                        </div>
-                       
-                        <!-- <div class="col-6">
-                            <p>Do you get overwhelmed with too many options in Meal Prep Apps.? Do you notice yourself getting decision paralysis or spending too long sifting through the plethora of recipes hand, only to notice the amount of time that has passed by without a single decision</p>
-                        </div> -->
-                    </div>
-
-                    <div class="row mt-5 pt-5">
-                        <div class="col-6  text-center">
-                            <p>Do you find yourself comparing your creations with others and trying to compete to make the perfect meal, never living up to the unrealistic expectations of what is already available, thus becoming disappointed in your own food?</p>
-                            <p><b>Don't let perfection get in the way of good enough.</b></p>
-                        </div>
-                        <div class="col">
-                            <img src="img\4x3_image_placeholder.jpg" alt="placeholder" width="75%">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <img src="img\4x3_image_placeholder.jpg" alt="placeholder" width="50%">
-                        </div>
-                        <div class="co">
-                            <p> Remove all the unwanted distractions and begin your very own, personalised, meal prep adventure </p>
-                        <h1>(Register Button)</h1>
-                        </div>
-                    </div>
-            </div>
             <!-- Section THREE Part TWO - Additional Tools (Progress Tracker, Shopping List, etc...) -->
             <div class="container-fluid index-container index-tools">
-                <h1>What tools are available here to help with Meal Prep</h1>
+                <div class="text-center mt-5 mb-5">
+                    <h1>What tools are available here to help with Meal Prep</h1>
+                </div>
                 <div class="container">
                     <div class="row justify-content-between">
                         <div class="col-3">
@@ -316,11 +296,11 @@
             </div>
         </div>
 
-        <!-- Bootstrap CSS only-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
-        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+        
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </body>
 </html>
+
+
